@@ -1,4 +1,5 @@
 from manim import *
+import argparse
 
 class HilbertProjection(Scene):
     def construct(self):
@@ -75,9 +76,8 @@ class HilbertProjection(Scene):
             comp_line = Line(
                 point.get_center(),
                 comp_point.get_center(),
-                color=YELLOW,
-                opacity=0.3
-            )
+                color=YELLOW
+            ).set_opacity(0.3)
             
             # Show comparison distance
             self.play(
@@ -134,7 +134,49 @@ class HilbertProjection(Scene):
             *[FadeOut(mob) for mob in self.mobjects]
         )
 
+def get_quality_config(quality='medium'):
+    """Get manim quality configuration based on quality setting."""
+    qualities = {
+        'low': {
+            'resolution': '854x480',
+            'frame_rate': 15,
+        },
+        'medium': {
+            'resolution': '1280x720',
+            'frame_rate': 30,
+        },
+        'high': {
+            'resolution': '1920x1080',
+            'frame_rate': 60,
+        },
+        'ultra': {
+            'resolution': '3840x2160',
+            'frame_rate': 60,
+        }
+    }
+    return qualities.get(quality, qualities['medium'])
+
 if __name__ == "__main__":
-    with tempconfig({"preview": True}):
+    import platform
+    if platform.system() == 'Darwin':  # macOS
+        config.renderer = 'cairo'
+        
+    parser = argparse.ArgumentParser(description='Render Hilbert Projection Theorem animation')
+    parser.add_argument('--quality', choices=['low', 'medium', 'high', 'ultra'], 
+                      default='medium', help='Rendering quality')
+    parser.add_argument('--no-preview', action='store_true', 
+                      help='Disable preview after rendering')
+    args = parser.parse_args()
+
+    # Get quality configuration
+    quality_config = get_quality_config(args.quality)
+    
+    # Configure and render
+    with tempconfig({
+        "frame_rate": quality_config['frame_rate'],
+        "pixel_height": int(quality_config['resolution'].split('x')[0]),
+        "pixel_width": int(quality_config['resolution'].split('x')[1]),
+        "preview": not args.no_preview
+    }):
         scene = HilbertProjection()
         scene.render()
