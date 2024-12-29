@@ -1,0 +1,1 @@
+write some manim code to visually display what the sharpness of a neural network gradient is. I saw a paper that refers to sharpess as the top eigenvalue of the Hessian of the loss. 
