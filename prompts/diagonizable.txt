@@ -1,0 +1,7 @@
+Think of a matrix as representing a linear map and consider what equations like D = BAB-1
+have to do with change-of-basis; i.e. with representing the same linear transformation
+with respect to different bases.
+
+Show how diagonalizable matrices represent transformations that are just stretching/shrinking 
+of some basis. Triangularizable matrices represent transformations for which there is a 
+sequence of subspaces of dimensions 1, 2, ..., n, such that the underlying transformation maps each subspace to itself.
