@@ -5,3 +5,19 @@ with respect to different bases.
 Show how diagonalizable matrices represent transformations that are just stretching/shrinking 
 of some basis. Triangularizable matrices represent transformations for which there is a 
 sequence of subspaces of dimensions 1, 2, ..., n, such that the underlying transformation maps each subspace to itself.
+
+---
+A linear transformation T: Rn -> Rn takes n-dimensional shapes and stretches, rotates, shears, 
+and reflects them in various ways to create new n-dimensional shapes.
+
+In particular, take an n-dimensional parallelepiped, let's call it A, formed from edges 
+starting from the origin (these are the vectors that characterize the parallelepiped). 
+Then T(A) is a new n-dimensional parallelepiped. If T has a null space, then T(A) will be
+flat along dim(nul(T)) of its edges.
+
+T is diagonalizable over R if there's some n-dimensional parallelepiped B such that 
+T(B) merely scales the edges of B. The scale factors for each edge are the eigenvalues.
+---
+
+diagonalizable matrices basically mean your transformation can be thought of as 
+‘just scaling’ when viewed in an appropriate basis.

@@ -16,8 +16,13 @@ pip install setuptools
 add manim_imports_ext.py to root
 Add custom folder with the required files
 
+# Daily
+Running into all sorts of errors trying to run the manim demo scene without any changes 
+- "Exception: cannot create OpenGL context"
+
 # Fine Tuning
 
 # In-context Learning
 
 # RAG system
+This might be interesting information to add - basically high level structure information https://3b1b.github.io/manim/getting_started/example_scenes.html
