@@ -1,3 +1,4 @@
+
 [ ] TODO transfer over manim wishlist from other repo
 [ ] TODO start yt channel?
 
@@ -26,3 +27,30 @@ Running into all sorts of errors trying to run the manim demo scene without any 
 
 # RAG system
 This might be interesting information to add - basically high level structure information https://3b1b.github.io/manim/getting_started/example_scenes.html
+
+
+# Background
+One common meditation practice in Vajrayana Buddhism involves picturing complex, geometrically detailed, fractal-like deity figures. The practicioner sits for minutes or even hours, holding the image in full 3d dimensions in their head, examining and relaxing into perfect concentrative witnessing, effortless examination that lets one see all the angles simultaneously. 
+
+Being a subset of Mahāyāna Buddhism,
+
+As the complexity of the figure grows with the skill of the meditator, a certain type of mental relaxation becomes a prerequisite for actually picturing the thing. To perceive all the subtle facets of the shape as it slowly rotates before you, you need have a familiarity with the territory. 
+
+However, you *also* need to relax a bit to perceive the gestalt and finally hold all of its complexities in a way that isn't so mentally taxing. Think phase collapse with DMT or hyperbolic geometry packing in onto itself. TODO link to QRI
+
+At the end of the meditation, they dissolve the complex shape in their head back to dust and open their eyes. My understanding is that the point of the exercise is not to worship the figure, but rather to practice letting your mind bend into whatever shape you ask it to.
+
+Building geometric intuition for how machine learning architectures transform space is much the same
+
+A Tulku is a teacher. 
+
+Often, the meditation involves a mantra to be repeated and internalized, reified by the image.
+
+Maybe I sound like a Guy With a Hammer here, but this sounds a lot like understanding linear algebra! Let's say  
+
+
+From Wikipedia: "The special tantric vows vary depending on the specific mandala practice for which the initiation is received and also depending on the level of initiation". In other words, meditating on a specific image trying to internalize a specific idea. The thing you meditate on should be based off your current abilities. 
+
+Thinking of this thread on Twitter about visualizing higher dimensions: https://x.com/spikedoanz/status/1877944710284668955 when the data is Tensors (easy mode, this kinda only makes sense for stacking boxes of numbers more than visualizing 4d spac)
+and this one for the process of developing a deeper sense of the symmetries of a higher dim space https://x.com/Morphenius/status/1639439602841944066 
+
