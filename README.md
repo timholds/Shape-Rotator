@@ -17,6 +17,15 @@ pip install setuptools
 add manim_imports_ext.py to root
 Add custom folder with the required files
 
+On linux instructions here https://manim.readthedocs.io/en/latest/installation/linux.htmlhttps://manim.readthedocs.io/en/latest/installation/linux.html:
+- `sudo apt install libpango1.0-dev pkg-config python3-dev`  
+- `sudo apt install sox ffmpeg libcairo2 libcairo2-dev`  
+- `sudo apt install texlive-full`  
+    - install was getting stuck so had to hold down enter until it unstuck per the advice here https://askubuntu.com/questions/956006/pregenerating-context-markiv-format-this-may-take-some-time-takes-forever
+- getting error about "OSError: libGL.so: cannot open shared object file: No such file or directory
+", fixed by running `sudo apt-get install freeglut3-dev`  
+
+
 # Daily
 Running into all sorts of errors trying to run the manim demo scene without any changes 
 - "Exception: cannot create OpenGL context"
