@@ -1,4 +1,9 @@
 
+Things to try:
+Using llama API
+Fine tuning a llama
+
+
 [ ] TODO transfer over manim wishlist from other repo
 [ ] TODO start yt channel?
 
@@ -25,6 +30,7 @@ On linux instructions here https://manim.readthedocs.io/en/latest/installation/l
 - getting error about "OSError: libGL.so: cannot open shared object file: No such file or directory
 ", fixed by running `sudo apt-get install freeglut3-dev`  
 
+[ ] TODO add a custom_config.yml to control font, add custom images
 
 # Daily
 Running into all sorts of errors trying to run the manim demo scene without any changes 

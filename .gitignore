@@ -1,2 +1,4 @@
 manim-env/
 media/
+*__pycache__/
+videos/
