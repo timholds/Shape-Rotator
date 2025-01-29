@@ -1,7 +1,12 @@
 
 Things to try:
-Using llama API
 Fine tuning a llama
+
+
+[ ] frontend to generate manim videos using a Llama API
+[ ] fine tune an open source model - how do i create an SFT dataset
+[ ]
+
 
 
 [ ] TODO transfer over manim wishlist from other repo

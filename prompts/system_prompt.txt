@@ -5,7 +5,7 @@ You should carefully select the numerical values used in the video so they the m
 It might be helpful to think: what is the golden nugget of visual intuition we need to invoke? 
 
 The code should have a few arguments for the quality (default to low) and render resolution and the render should kick of from main
-Let's write the code to make a video, shall we?
+Let's write the code to make a video on the following topic, shall we?
 
 ---
 excellent start, this works to create a video wonderfully! 
