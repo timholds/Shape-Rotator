@@ -82,3 +82,14 @@ and this one for the process of developing a deeper sense of the symmetries of a
 Need to run both simultaneously:
 `python backend.py` 
 `npm run dev` to run the frontend at http://localhost:3000
+
+# Workflow
+Current Setup:
+- User enters text in frontend
+- Frontend sends POST to http://localhost:8000/generate
+- Backend receives prompt in the AnimationRequest Pydantic model
+- Currently using placeholder generate_manim_code() function
+
+# Concerns
+validate/sanitize the generated Manim code?
+Options for handling potentially unsafe code
