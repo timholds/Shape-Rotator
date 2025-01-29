@@ -3,7 +3,10 @@ Things to try:
 Fine tuning a llama
 
 
-[ ] frontend to generate manim videos using a Llama API
+[X] frontend to accept user input
+[ ] frontend to query an API
+[ ] API to succesfully manim videos 
+[ ] frontend to display the video
 [ ] fine tune an open source model - how do i create an SFT dataset
 [ ]
 
@@ -12,7 +15,7 @@ Fine tuning a llama
 [ ] TODO transfer over manim wishlist from other repo
 [ ] TODO start yt channel?
 
-# Misc
+# Prompt purgatory
 What are some simple but nontrivial and intuitive examples of vector spaces
 
 
@@ -21,6 +24,7 @@ Want a visualization of how the parameter for weight decay (lambda) shrinks the 
 [ ] Add LLM call to update/convert any given 3blue1brown piece of manim code to work with the open source version of manim instead of the private one?
 -> otherwise will be helping it generate the wrong code!
 
+# Setup
 For using manimgl (3b1b's private manim) rather than the open source version of manim:
 pip install manimgl
 pip install setuptools
@@ -74,3 +78,7 @@ From Wikipedia: "The special tantric vows vary depending on the specific mandala
 Thinking of this thread on Twitter about visualizing higher dimensions: https://x.com/spikedoanz/status/1877944710284668955 when the data is Tensors (easy mode, this kinda only makes sense for stacking boxes of numbers more than visualizing 4d spac)
 and this one for the process of developing a deeper sense of the symmetries of a higher dim space https://x.com/Morphenius/status/1639439602841944066 
 
+# Deployment
+Need to run both simultaneously:
+`python backend.py` 
+`npm run dev` to run the frontend at http://localhost:3000
