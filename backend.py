@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles  # Add this import
 from pydantic import BaseModel
 import subprocess
 import tempfile
@@ -48,6 +49,12 @@ app.add_middleware(
 MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 
+app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR)), name="videos")
+@app.get("/")
+async def root():
+    """Root endpoint to verify API is running."""
+    return {"status": "ok"}
+
 # In-memory task storage - in production, this should be a proper database
 generation_tasks: dict[str, dict] = {}
 
@@ -75,29 +82,74 @@ async def generate_animation(task_id: str, code: str, options: dict):
     """Background task for animation generation."""
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
+            # Write code to temporary file
             code_file = Path(temp_dir) / "scene.py"
             code_file.write_text(code)
+            print(f"Created temp file at: {code_file}")
+            print(f"Code contents:\n{code}")
+            
+            # Create a deterministic output path using the task_id
+            output_dir = MEDIA_DIR / "videos" / task_id
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_file = output_dir / "animation.mp4"
+            print(f"Output directory created at: {output_dir}")
+            print(f"Target output file: {output_file}")
             
             # Update task status
             generation_tasks[task_id]["status"] = TaskStatus.PROCESSING
             
-            # Mock video generation for now
-            await asyncio.sleep(2)  # Simulate processing time
+            # Run Manim with specified output file
+            manim_cmd = [
+                "manim",
+                str(code_file),
+                "-ql",  # Low quality for faster rendering
+                "--media_dir", str(MEDIA_DIR.absolute()),
+                "--output_file", str(output_file.absolute())
+            ]
+            print(f"Running command: {' '.join(manim_cmd)}")
             
-            # In reality, we'd run Manim here
-            # process = await asyncio.create_subprocess_exec(...)
+            process = await asyncio.create_subprocess_exec(
+                *manim_cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
             
-            # For now, just update task as completed
+            stdout, stderr = await process.communicate()
+            print(f"STDOUT:\n{stdout.decode()}")
+            print(f"STDERR:\n{stderr.decode()}")
+            
+            if process.returncode != 0:
+                raise Exception(f"Manim error: {stderr.decode()}")
+            
+            if not output_file.exists():
+                print(f"Files in media dir: {list(MEDIA_DIR.rglob('*.mp4'))}")
+                raise Exception("Video file not generated")
+                
+            # Get the relative path from MEDIA_DIR
+            relative_path = output_file.relative_to(MEDIA_DIR)
+            print(f"Final video path: {relative_path}")
+                
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
-                "video_url": f"/videos/example.mp4"  # Mock URL
+                "video_url": f"/videos/{relative_path}"
             })
             
     except Exception as e:
+        print(f"Error generating animation: {str(e)}")
         generation_tasks[task_id].update({
             "status": TaskStatus.FAILED,
             "error": str(e)
         })
+        
+@app.get("/videos/{path:path}")
+async def get_video(path: str):
+    """Retrieve a generated video file."""
+    video_path = MEDIA_DIR / path
+    if not video_path.exists():
+        raise HTTPException(status_code=404, detail=f"Video not found: {path}")
+    
+    return FileResponse(str(video_path))
+
 
 @app.post("/generate", response_model=GenerationStatus)
 async def create_animation(request: AnimationRequest, background_tasks: BackgroundTasks):
