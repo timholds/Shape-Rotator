@@ -93,3 +93,11 @@ Current Setup:
 # Concerns
 validate/sanitize the generated Manim code?
 Options for handling potentially unsafe code
+
+# Challenges and considerations
+Knowing the name of the file that just got generated! A couple approaches:
+- the output_file flag from the manimgl call
+- add something to the LLM call that insists upon the file name / final class to be consistent - something like DisplayScene and `display_scene` as the class name and file name. 
+- grab the most recent video
+
+where are we injecting the prompt again? do some prompt engineering to figure out the most useful thing to prepend to the user input 
