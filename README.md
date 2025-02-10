@@ -81,7 +81,7 @@ and this one for the process of developing a deeper sense of the symmetries of a
 # Deployment
 Need to run both simultaneously:
 `python backend.py` 
-`npm run dev` to run the frontend at http://localhost:3000
+cd `frontend` and run `npm run dev` to get the frontend at http://localhost:3000
 
 # Workflow
 Current Setup:
