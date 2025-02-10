@@ -9,13 +9,36 @@ import uuid
 from pathlib import Path
 import asyncio
 from typing import Optional
+from enum import Enum
 
-app = FastAPI()
+class TaskStatus(str, Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+class AnimationRequest(BaseModel):
+    prompt: str
+    options: Optional[dict] = {
+        "quality": "low",
+        "resolution": "720p"
+    }
+
+class GenerationStatus(BaseModel):
+    task_id: str
+    status: TaskStatus
+    code: Optional[str] = None
+    video_url: Optional[str] = None
+    error: Optional[str] = None
+
+app = FastAPI(title="Manim Animation Generator",
+             description="API for generating mathematical animations using Manim",
+             version="1.0.0")
 
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Update with your React app's URL
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,98 +48,80 @@ app.add_middleware(
 MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 
-class AnimationRequest(BaseModel):
-    prompt: str
-    options: Optional[dict] = None
+# In-memory task storage - in production, this should be a proper database
+generation_tasks: dict[str, dict] = {}
 
-class GenerationStatus(BaseModel):
-    task_id: str
-    status: str
-    code: Optional[str] = None
-    video_url: Optional[str] = None
-    error: Optional[str] = None
+def sanitize_class_name(prompt: str) -> str:
+    """Ensure the class name is a valid Python identifier."""
+    # Remove non-alphanumeric characters and ensure starts with a letter
+    sanitized = "".join(x for x in prompt.title() if x.isalnum())
+    return f"Animation{sanitized}Scene" if not sanitized[0].isalpha() else f"{sanitized}Scene"
 
-# Store for tracking generation tasks
-generation_tasks = {}
-
-def generate_manim_code(prompt: str) -> str:
-    """
-    Placeholder for LLM integration.
-    Will be replaced with actual LLM call.
-    """
-    # Generate a safe class name from the prompt
-    safe_class_name = "".join(x for x in prompt.title() if x.isalnum()) + "Scene"
+def generate_manim_code(prompt: str, options: dict) -> str:
+    """Generate Manim code based on prompt and options."""
+    class_name = sanitize_class_name(prompt)
     
+    # For now, just return a minimal working example
     return f'''from manim import *
 
-class {safe_class_name}(Scene):
+class {class_name}(Scene):
     def construct(self):
-        # Basic animation example
-        circle = Circle()
-        self.play(Create(circle))
+        text = Text("Hello, Manim!")
+        self.play(Write(text))
         self.wait()
 '''
 
-async def generate_animation(task_id: str, code: str):
-    """
-    Generates animation from Manim code and updates task status.
-    """
+async def generate_animation(task_id: str, code: str, options: dict):
+    """Background task for animation generation."""
     try:
-        # Create temporary directory for Manim files
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Write code to temporary file
             code_file = Path(temp_dir) / "scene.py"
             code_file.write_text(code)
             
-            # Run Manim
-            process = await asyncio.create_subprocess_exec(
-                "manim",
-                str(code_file),
-                "-qm",  # Medium quality
-                "--media_dir", str(MEDIA_DIR),
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
+            # Update task status
+            generation_tasks[task_id]["status"] = TaskStatus.PROCESSING
             
-            stdout, stderr = await process.communicate()
+            # Mock video generation for now
+            await asyncio.sleep(2)  # Simulate processing time
             
-            if process.returncode != 0:
-                raise Exception(f"Manim error: {stderr.decode()}")
+            # In reality, we'd run Manim here
+            # process = await asyncio.create_subprocess_exec(...)
             
-            # Update task status with video location
-            video_file = list(MEDIA_DIR.glob("*.mp4"))[-1]  # Get latest generated video
+            # For now, just update task as completed
             generation_tasks[task_id].update({
-                "status": "completed",
-                "video_url": f"/videos/{video_file.name}"
+                "status": TaskStatus.COMPLETED,
+                "video_url": f"/videos/example.mp4"  # Mock URL
             })
             
     except Exception as e:
         generation_tasks[task_id].update({
-            "status": "failed",
+            "status": TaskStatus.FAILED,
             "error": str(e)
         })
 
 @app.post("/generate", response_model=GenerationStatus)
 async def create_animation(request: AnimationRequest, background_tasks: BackgroundTasks):
+    """Create a new animation generation task."""
+    task_id = str(uuid.uuid4())
+    
     try:
-        # Generate unique task ID
-        task_id = str(uuid.uuid4())
+        code = generate_manim_code(request.prompt, request.options)
         
-        # Generate Manim code using placeholder function
-        code = generate_manim_code(request.prompt)
-        
-        # Initialize task status
         generation_tasks[task_id] = {
-            "status": "processing",
+            "status": TaskStatus.PENDING,
             "code": code
         }
         
-        # Start animation generation in background
-        background_tasks.add_task(generate_animation, task_id, code)
+        background_tasks.add_task(
+            generate_animation, 
+            task_id, 
+            code, 
+            request.options
+        )
         
         return GenerationStatus(
             task_id=task_id,
-            status="processing",
+            status=TaskStatus.PENDING,
             code=code
         )
         
@@ -125,31 +130,20 @@ async def create_animation(request: AnimationRequest, background_tasks: Backgrou
 
 @app.get("/status/{task_id}", response_model=GenerationStatus)
 async def get_status(task_id: str):
+    """Get the status of an animation generation task."""
     if task_id not in generation_tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    task = generation_tasks[task_id]
-    return GenerationStatus(
-        task_id=task_id,
-        **task
-    )
+    return GenerationStatus(task_id=task_id, **generation_tasks[task_id])
 
 @app.get("/videos/{video_name}")
 async def get_video(video_name: str):
+    """Retrieve a generated video file."""
     video_path = MEDIA_DIR / video_name
     if not video_path.exists():
         raise HTTPException(status_code=404, detail="Video not found")
     
     return FileResponse(str(video_path))
-
-# Cleanup endpoint (optional, for development)
-@app.delete("/cleanup")
-async def cleanup_media():
-    """Remove all generated media files."""
-    for file in MEDIA_DIR.glob("*"):
-        if file.is_file():
-            file.unlink()
-    return {"status": "cleaned"}
 
 if __name__ == "__main__":
     import uvicorn
