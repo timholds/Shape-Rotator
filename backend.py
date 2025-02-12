@@ -79,28 +79,8 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
             )
             response.raise_for_status()
             result = response.json()
-            code = result['response'].strip()
-            
-            # Remove markdown code blocks if present
-            if code.startswith("```python"):
-                code = code[8:]  # Remove ```python
-            if code.startswith("```"):
-                code = code[3:]  # Remove ```
-            if code.endswith("```"):
-                code = code[:-3]  # Remove trailing ```
-            
-            # Clean up the code
-            lines = code.split('\n')
-            # Remove empty lines from the beginning
-            while lines and not lines[0].strip():
-                lines.pop(0)
-            # Remove empty lines from the end    
-            while lines and not lines[-1].strip():
-                lines.pop()
-            # Remove any standalone 'n' lines (artifact from newline processing)
-            lines = [line for line in lines if line.strip() != 'n']
-                
-            return '\n'.join(lines)
+            return sanitize_manim_code(result['response'])
+
     except Exception as e:
         print(f"LLM generation failed: {str(e)}, falling back to template")
         # Fall back to template generation if LLM fails
@@ -110,6 +90,40 @@ def sanitize_class_name(prompt: str) -> str:
     """Ensure the class name is a valid Python identifier."""
     sanitized = "".join(x for x in prompt.title() if x.isalnum())
     return f"Animation{sanitized}Scene" if not sanitized[0].isalpha() else f"{sanitized}Scene"
+
+def sanitize_manim_code(code: str) -> str:
+    """Clean and validate Manim code from LLM response.
+    
+    Args:
+        code: Raw code string from LLM
+        
+    Returns:
+        Cleaned and validated code string
+        
+    Removes markdown formatting, empty lines, and other artifacts.
+    """
+    code = code.strip()
+    
+    # Remove markdown code blocks if present
+    if code.startswith("```python"):
+        code = code[8:]  # Remove ```python
+    if code.startswith("```"):
+        code = code[3:]  # Remove ```
+    if code.endswith("```"):
+        code = code[:-3]  # Remove trailing ```
+    
+    # Clean up the code
+    lines = code.split('\n')
+    # Remove empty lines from the beginning
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    # Remove empty lines from the end    
+    while lines and not lines[-1].strip():
+        lines.pop()
+    # Remove any standalone 'n' lines (artifact from newline processing)
+    lines = [line for line in lines if line.strip() != 'n']
+        
+    return '\n'.join(lines)
 
 async def generate_animation(task_id: str, prompt: str, options: dict):
     """Background task for animation generation."""
