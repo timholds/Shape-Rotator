@@ -1,4 +1,3 @@
-// src/components/ManimInterface.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -12,29 +11,10 @@ export function ManimInterface() {
 
   const API_BASE = 'http://localhost:8000';
   
-  // Function to poll generation status
   const pollStatus = async (taskId: string) => {
     const response = await fetch(`${API_BASE}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
     return response.json();
-  };
-
-  // Function to start generation and poll for results
-  const generateAnimation = async (prompt: string) => {
-    // Start generation
-    const response = await fetch(`${API_BASE}/generate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt }),
-    });
-
-    if (!response.ok) throw new Error('Failed to start generation');
-    const { task_id, code } = await response.json();
-    
-    // Return initial code
-    return { taskId: task_id, code };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,15 +25,25 @@ export function ManimInterface() {
 
     try {
       // Start generation process
-      const { taskId, code } = await generateAnimation(userPrompt);
+      const response = await fetch(`${API_BASE}/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt: userPrompt }),
+      });
+
+      if (!response.ok) throw new Error('Failed to start generation');
+      const { task_id, code } = await response.json();
       setGeneratedCode(code);
 
       // Poll for results
       while (true) {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Poll every second
-        const status = await pollStatus(taskId);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const status = await pollStatus(task_id);
         
-        if (status.status === 'completed') {
+        if (status.status === 'completed' && status.video_url) {
+          // Construct full URL from API_BASE and relative path
           setVideoUrl(`${API_BASE}${status.video_url}`);
           break;
         } else if (status.status === 'failed') {
@@ -110,8 +100,9 @@ export function ManimInterface() {
         {videoUrl && (
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Generated Animation:</h3>
-            <div className="relative w-full pt-[56.25%]">
+            <div className="relative w-full pt-[56.25%] bg-gray-100 rounded-md">
               <video
+                key={videoUrl} // Force video reload when URL changes
                 src={videoUrl}
                 controls
                 className="absolute top-0 left-0 w-full h-full rounded-md"
