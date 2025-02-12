@@ -50,20 +50,8 @@ class {class_name}(Scene):
 
 async def generate_manim_code_with_llm(prompt: str) -> str:
     """Generate Manim code using Ollama. Falls back to template if LLM fails."""
-    system_prompt = """You are a Manim code generator. Your task is to output ONLY valid Python code for Manim animations - no explanations, no markdown, no code blocks. Just the raw Python code that can be saved directly to a .py file and executed.
-
-    Required format:
-    from manim import *
-
-    class [DescriptiveName](Scene):
-        def construct(self):
-            # Your animation code here
-
-    Rules:
-    1. No markdown code blocks or formatting
-    2. No comments except essential ones
-    3. Use only standard Manim objects (Circle, Square, Text, etc.)
-    4. Use standard Manim animations (Create, Transform, FadeIn, etc.)"""
+    with open("system_prompt.txt", "r") as f:
+        system_prompt = f.read()
     
     try:
         # First try with LLM
