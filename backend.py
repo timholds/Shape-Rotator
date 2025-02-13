@@ -13,6 +13,7 @@ from typing import Optional
 from enum import Enum
 import httpx
 import json
+from collect_data import DataCollector
 
 class TaskStatus(str, Enum):
     PENDING = "pending"
@@ -121,6 +122,17 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
     try:
         # Generate code using LLM
         code = await generate_manim_code_with_llm(prompt)
+
+        with open("system_prompt.txt", "r") as f:
+            system_prompt = f.read()
+            
+        await data_collector.log_attempt(
+            prompt=prompt,
+            code=code,
+            task_data=generation_tasks[task_id],
+            system_prompt=system_prompt
+        )
+
         generation_tasks[task_id].update({
             "status": TaskStatus.PROCESSING,
             "code": code
@@ -191,6 +203,7 @@ MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 
 app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR)), name="videos")
+data_collector = DataCollector(Path("./training_data"))
 
 # In-memory task storage
 generation_tasks: dict[str, dict] = {}

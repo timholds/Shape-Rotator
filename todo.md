@@ -9,6 +9,8 @@ where are we injecting the prompt again? do some prompt engineering to figure ou
 
 figure out how to cache and group inputs. many people are going to want to see the same things, and we should be able to compose videos about these better if we are able to cache the subcomponents (both performance and determinism wise. bobviously we dont get determinism entirely but its reducing the degrees of freedom for a video on the fast fourier transform when we already have a great visualization on the regular fourier transform x)
 
+
+# Testing and Validation
 Strategy for testing the endpoints:
 ```
 curl -X POST http://localhost:8000/generate \
@@ -42,3 +44,14 @@ response = {
 ```
 
 `curl http://localhost:8000/videos/task-id/animation.mp4 --output animation.mp4`    
+
+
+TODO try distilling 
+Try fine tuning, RLHF'ing on some open source math datasets
+
+https://huggingface.co/datasets/open-r1/OpenR1-Math-220k
+
+TODO turn the 3blue1brown videos into a dataset for the model to train on.
+- what format should the dataset be
+- do we want to try to train a reasoning model?
+- could we do our own distillation of a bigger model and mix in heavier samples of the 3b1b videos? 
