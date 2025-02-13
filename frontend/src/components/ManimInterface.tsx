@@ -14,7 +14,14 @@ export function ManimInterface() {
   const pollStatus = async (taskId: string) => {
     const response = await fetch(`${API_BASE}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
-    return response.json();
+    const status = await response.json();
+    
+    // Update code if available in status response
+    if (status.code) {
+      setGeneratedCode(status.code);
+    }
+    
+    return status;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,6 +29,7 @@ export function ManimInterface() {
     setIsLoading(true);
     setError('');
     setVideoUrl('');
+    setGeneratedCode(''); // Clear previous code
 
     try {
       // Start generation process
@@ -30,12 +38,17 @@ export function ManimInterface() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: userPrompt }),
+        body: JSON.stringify({ 
+          prompt: userPrompt,
+          options: {
+            quality: "low",
+            resolution: "720p"
+          }
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to start generation');
-      const { task_id, code } = await response.json();
-      setGeneratedCode(code);
+      const { task_id } = await response.json();
 
       // Poll for results
       while (true) {
@@ -43,7 +56,6 @@ export function ManimInterface() {
         const status = await pollStatus(task_id);
         
         if (status.status === 'completed' && status.video_url) {
-          // Construct full URL from API_BASE and relative path
           setVideoUrl(`${API_BASE}${status.video_url}`);
           break;
         } else if (status.status === 'failed') {
@@ -91,7 +103,7 @@ export function ManimInterface() {
         {generatedCode && (
           <div className="mt-4">
             <h3 className="font-semibold mb-2">Generated Manim Code:</h3>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto">
+            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
               <code>{generatedCode}</code>
             </pre>
           </div>
@@ -102,12 +114,18 @@ export function ManimInterface() {
             <h3 className="font-semibold mb-2">Generated Animation:</h3>
             <div className="relative w-full pt-[56.25%] bg-gray-100 rounded-md">
               <video
-                key={videoUrl} // Force video reload when URL changes
+                key={videoUrl}
                 src={videoUrl}
                 controls
                 className="absolute top-0 left-0 w-full h-full rounded-md"
               />
             </div>
+          </div>
+        )}
+
+        {isLoading && !generatedCode && (
+          <div className="mt-4 p-4 bg-blue-50 text-blue-600 rounded-md">
+            Generating code and animation... This may take a few moments.
           </div>
         )}
       </div>

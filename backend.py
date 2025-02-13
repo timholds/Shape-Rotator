@@ -121,7 +121,10 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
     try:
         # Generate code using LLM
         code = await generate_manim_code_with_llm(prompt)
-        generation_tasks[task_id]["code"] = code
+        generation_tasks[task_id].update({
+            "status": TaskStatus.PROCESSING,
+            "code": code
+        })
         
         with tempfile.TemporaryDirectory() as temp_dir:
             code_file = Path(temp_dir) / "scene.py"
@@ -130,9 +133,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             print(f"Code contents:\n{code}")
             
             # Output path already set up at the start of the function
-            
-            generation_tasks[task_id]["status"] = TaskStatus.PROCESSING
-            
+                        
             quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
             manim_cmd = [
                 "manim",
@@ -226,7 +227,14 @@ async def get_status(task_id: str):
     if task_id not in generation_tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    return GenerationStatus(task_id=task_id, **generation_tasks[task_id])
+    task_data = generation_tasks[task_id]
+    return GenerationStatus(
+        task_id=task_id,
+        status=task_data["status"],
+        code=task_data.get("code"),
+        video_url=task_data.get("video_url"),
+        error=task_data.get("error")
+    )
 
 @app.get("/videos/{video_name}")
 async def get_video(video_name: str):
