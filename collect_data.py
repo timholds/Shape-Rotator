@@ -1,9 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Optional, Literal
 import json
 from pathlib import Path
 import asyncio
+from moviepy.editor import VideoFileClip
+
 
 @dataclass
 class GenerationAttempt:
@@ -15,39 +17,90 @@ class GenerationAttempt:
     
     # Generation details
     generated_code: str
-    execution_outcome: dict[str, any]  # Status, stack trace, render time
+    # Enhanced execution outcome
+    execution_outcome: dict[str, any] = field(default_factory=lambda: {
+        "status": None,
+        "error": None,
+        "render_time": None,
+        "manim_stdout": None,
+        "manim_stderr": None,
+        "video_metadata": None,
+    })
+
+    # Generation metadata
+    generation_metadata: dict[str, any] = field(default_factory=lambda: {
+        "llm_response_time": None,
+        "used_fallback_template": False,
+        "sanitization_changes": [],
+        "llm_config": {}
+    })
     
+    # User context
+    # user_context: dict[str, any] = field(default_factory=lambda: {
+    #     "options": {},
+    #     "session_id": None
+    # })    
     # Optional enrichments for different learning approaches
     extensions: Optional[dict] = None
 
 class DataCollector:
-    def __init__(self, data_dir: Path):
+    def __init__(self, data_dir: Path, media_dir: Path):
         self.data_dir = data_dir
+        self.media_dir = media_dir
         self.data_dir.mkdir(exist_ok=True)
         
+    def _get_video_metadata(self, video_path: str) -> dict:
+        """Extract metadata from generated video"""
+        if not video_path:
+            return None
+            
+        full_path = self.media_dir / video_path.replace("/videos/", "")
+        if not full_path.exists():
+            return None
+            
+        metadata = {
+            "size_bytes": full_path.stat().st_size,
+            "duration": None
+        }
+        
+        try:
+            with VideoFileClip(str(full_path)) as clip:
+                metadata["duration"] = clip.duration
+        except Exception as e:
+            print(f"Failed to extract video duration: {e}")
+            
+        return metadata
+
     async def log_attempt(self, 
                          prompt: str, 
                          code: str, 
                          task_data: dict,
-                         system_prompt: str) -> None:
+                         system_prompt: str,
+                         generation_metadata: dict,
+                         stdout: Optional[str] = None,
+                         stderr: Optional[str] = None,
+                         render_time: Optional[float] = None) -> None:
         """Log a generation attempt to disk"""
         attempt = GenerationAttempt(
             timestamp=datetime.utcnow().isoformat(),
-            model_version="mistral",  # Get from your config
+            model_version="mistral",
             system_prompt=system_prompt,
             user_query=prompt,
             generated_code=code,
             execution_outcome={
                 "status": task_data["status"],
                 "error": task_data.get("error"),
-                # Could add render_time if you track it
-            }
+                "render_time": render_time,
+                "manim_stdout": stdout,
+                "manim_stderr": stderr,
+                "video_metadata": self._get_video_metadata(task_data.get("video_url")) if task_data.get("video_url") else None
+            },
+            generation_metadata=generation_metadata
         )
         
-        # Save to jsonl file
         filename = self.data_dir / f"generation_attempts_{datetime.utcnow():%Y%m}.jsonl"
         with open(filename, "a") as f:
-            f.write(json.dumps(dataclasses.asdict(attempt)) + "\n")
+            f.write(json.dumps(asdict(attempt)) + "\n")
 
 # Utility functions for different learning approaches
 def create_dpo_pairs(data_dir: Path) -> list[tuple[GenerationAttempt, GenerationAttempt]]:

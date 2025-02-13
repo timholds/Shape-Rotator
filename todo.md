@@ -55,3 +55,6 @@ TODO turn the 3blue1brown videos into a dataset for the model to train on.
 - what format should the dataset be
 - do we want to try to train a reasoning model?
 - could we do our own distillation of a bigger model and mix in heavier samples of the 3b1b videos? 
+
+Add some buttons with default inputs so people can try it out without having to type anything in.
+- cache these videos so we don't have to regenerate them every time.

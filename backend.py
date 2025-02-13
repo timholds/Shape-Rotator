@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import subprocess
 import tempfile
 import os
 import uuid
@@ -12,7 +11,7 @@ import asyncio
 from typing import Optional
 from enum import Enum
 import httpx
-import json
+import time
 from collect_data import DataCollector
 
 class TaskStatus(str, Enum):
@@ -119,19 +118,22 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
     output_dir = MEDIA_DIR / task_id
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "animation.mp4"
+
+    generation_start = time.time()
+    llm_start = time.time()
+    used_fallback = False
+    sanitization_changes = []
+
     try:
         # Generate code using LLM
-        code = await generate_manim_code_with_llm(prompt)
-
-        with open("system_prompt.txt", "r") as f:
-            system_prompt = f.read()
-            
-        await data_collector.log_attempt(
-            prompt=prompt,
-            code=code,
-            task_data=generation_tasks[task_id],
-            system_prompt=system_prompt
-        )
+        try:
+            code = await generate_manim_code_with_llm(prompt)
+            used_fallback = False
+        except Exception as e:
+            code = generate_manim_code(prompt)
+            used_fallback = True
+        finally:
+            llm_time = time.time() - llm_start
 
         generation_tasks[task_id].update({
             "status": TaskStatus.PROCESSING,
@@ -144,8 +146,6 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             print(f"Created temp file at: {code_file}")
             print(f"Code contents:\n{code}")
             
-            # Output path already set up at the start of the function
-                        
             quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
             manim_cmd = [
                 "manim",
@@ -162,28 +162,86 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             )
             
             stdout, stderr = await process.communicate()
-            print(f"STDOUT:\n{stdout.decode()}")
-            print(f"STDERR:\n{stderr.decode()}")
+            stdout_text = stdout.decode()
+            stderr_text = stderr.decode()
             
             if process.returncode != 0:
-                raise Exception(f"Manim error: {stderr.decode()}")
+                raise Exception(f"Manim error: {stderr_text}")
             
             if not output_file.exists():
                 raise Exception("Video file not generated")
                 
             relative_path = output_file.relative_to(MEDIA_DIR)
+            video_url = f"/videos/{relative_path}"
             
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
-                "video_url": f"/videos/{relative_path}"
+                "video_url": video_url
             })
+
+            # Calculate total render time
+            render_time = time.time() - generation_start
+
+            # Read system prompt
+            with open("system_prompt.txt", "r") as f:
+                system_prompt = f.read()
+
+            # Log the attempt with all metadata
+            generation_metadata = {
+                "llm_response_time": llm_time,
+                "used_fallback_template": used_fallback,
+                "sanitization_changes": sanitization_changes,
+                "llm_config": {
+                    "model": "mistral",
+                    "quality": options.get("quality", "low"),
+                    "resolution": options.get("resolution", "720p")
+                }
+            }
+            
+            await data_collector.log_attempt(
+                prompt=prompt,
+                code=code,
+                task_data=generation_tasks[task_id],
+                system_prompt=system_prompt,
+                generation_metadata=generation_metadata,
+                stdout=stdout_text,
+                stderr=stderr_text,
+                render_time=render_time
+            )
             
     except Exception as e:
-        print(f"Error generating animation: {str(e)}")
+        error_str = str(e)
+        print(f"Error generating animation: {error_str}")
         generation_tasks[task_id].update({
             "status": TaskStatus.FAILED,
-            "error": str(e)
+            "error": error_str
         })
+
+        # Log failed attempts too
+        with open("system_prompt.txt", "r") as f:
+            system_prompt = f.read()
+
+        generation_metadata = {
+            "llm_response_time": time.time() - llm_start,
+            "used_fallback_template": used_fallback,
+            "sanitization_changes": sanitization_changes,
+            "llm_config": {
+                "model": "mistral",
+                "quality": options.get("quality", "low"),
+                "resolution": options.get("resolution", "720p")
+            }
+        }
+
+        await data_collector.log_attempt(
+            prompt=prompt,
+            code=code if 'code' in locals() else "",
+            task_data=generation_tasks[task_id],
+            system_prompt=system_prompt,
+            generation_metadata=generation_metadata,
+            stdout=stdout_text if 'stdout_text' in locals() else None,
+            stderr=stderr_text if 'stderr_text' in locals() else None,
+            render_time=time.time() - generation_start
+        )
 
 app = FastAPI(title="Manim Animation Generator",
              description="API for generating mathematical animations using Manim",
@@ -203,7 +261,7 @@ MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 
 app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR)), name="videos")
-data_collector = DataCollector(Path("./training_data"))
+data_collector = DataCollector(Path("./training_data"), MEDIA_DIR)
 
 # In-memory task storage
 generation_tasks: dict[str, dict] = {}
