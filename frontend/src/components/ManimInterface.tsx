@@ -2,23 +2,47 @@
 
 import React, { useState } from 'react';
 
+type GenerationStep = 'idle' | 'generating-code' | 'rendering-video' | 'completed';
+
 export function ManimInterface() {
   const [userPrompt, setUserPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [generatedCode, setGeneratedCode] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
+  const [currentStep, setCurrentStep] = useState<GenerationStep>('idle');
 
   const API_BASE = 'http://localhost:8000';
+  
+  const getProgressPercentage = (step: GenerationStep) => {
+    switch (step) {
+      case 'idle': return 0;
+      case 'generating-code': return 33;
+      case 'rendering-video': return 66;
+      case 'completed': return 100;
+      default: return 0;
+    }
+  };
+
+  const getProgressText = (step: GenerationStep) => {
+    switch (step) {
+      case 'idle': return 'Ready to generate';
+      case 'generating-code': return 'Generating Manim code...';
+      case 'rendering-video': return 'Rendering animation...';
+      case 'completed': return 'Generation complete!';
+      default: return '';
+    }
+  };
   
   const pollStatus = async (taskId: string) => {
     const response = await fetch(`${API_BASE}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
     const status = await response.json();
     
-    // Update code if available in status response
-    if (status.code) {
+    // Update code and generation step based on status
+    if (status.code && !generatedCode) {
       setGeneratedCode(status.code);
+      setCurrentStep('rendering-video');
     }
     
     return status;
@@ -29,10 +53,10 @@ export function ManimInterface() {
     setIsLoading(true);
     setError('');
     setVideoUrl('');
-    setGeneratedCode(''); // Clear previous code
+    setGeneratedCode('');
+    setCurrentStep('generating-code');
 
     try {
-      // Start generation process
       const response = await fetch(`${API_BASE}/generate`, {
         method: 'POST',
         headers: {
@@ -50,13 +74,13 @@ export function ManimInterface() {
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
 
-      // Poll for results
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const status = await pollStatus(task_id);
         
         if (status.status === 'completed' && status.video_url) {
           setVideoUrl(`${API_BASE}${status.video_url}`);
+          setCurrentStep('completed');
           break;
         } else if (status.status === 'failed') {
           throw new Error(status.error || 'Generation failed');
@@ -65,6 +89,7 @@ export function ManimInterface() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate animation');
       console.error('Error:', err);
+      setCurrentStep('idle');
     } finally {
       setIsLoading(false);
     }
@@ -100,17 +125,24 @@ export function ManimInterface() {
           </div>
         )}
 
-        {generatedCode && (
-          <div className="mt-4">
-            <h3 className="font-semibold mb-2">Generated Manim Code:</h3>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
-              <code>{generatedCode}</code>
-            </pre>
+        {isLoading && (
+          <div className="mt-6 space-y-2">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>{getProgressText(currentStep)}</span>
+              <span>{getProgressPercentage(currentStep)}%</span>
+            </div>
+            {/* Custom progress bar */}
+            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
+                style={{ width: `${getProgressPercentage(currentStep)}%` }}
+              />
+            </div>
           </div>
         )}
 
         {videoUrl && (
-          <div className="mt-4">
+          <div className="mt-6">
             <h3 className="font-semibold mb-2">Generated Animation:</h3>
             <div className="relative w-full pt-[56.25%] bg-gray-100 rounded-md">
               <video
@@ -123,9 +155,12 @@ export function ManimInterface() {
           </div>
         )}
 
-        {isLoading && !generatedCode && (
-          <div className="mt-4 p-4 bg-blue-50 text-blue-600 rounded-md">
-            Generating code and animation... This may take a few moments.
+        {generatedCode && (
+          <div className="mt-6">
+            <h3 className="font-semibold mb-2">Generated Manim Code:</h3>
+            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
+              <code>{generatedCode}</code>
+            </pre>
           </div>
         )}
       </div>
