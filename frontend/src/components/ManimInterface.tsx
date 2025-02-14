@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import FeedbackButtons from '@/components/FeedbackButtons';
 
 type GenerationStep = 'idle' | 'generating-code' | 'rendering-video' | 'completed';
 
@@ -11,9 +12,20 @@ export function ManimInterface() {
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState<GenerationStep>('idle');
+  const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
 
   const API_BASE = 'http://localhost:8000';
   
+  const getProgressText = (step: GenerationStep) => {
+    switch (step) {
+      case 'idle': return 'Ready to generate';
+      case 'generating-code': return 'Generating Manim code...';
+      case 'rendering-video': return 'Rendering animation...';
+      case 'completed': return 'Generation complete!';
+      default: return '';
+    }
+  };
+
   const getProgressPercentage = (step: GenerationStep) => {
     switch (step) {
       case 'idle': return 0;
@@ -24,16 +36,10 @@ export function ManimInterface() {
     }
   };
 
-  const getProgressText = (step: GenerationStep) => {
-    switch (step) {
-      case 'idle': return 'Ready to generate';
-      case 'generating-code': return 'Generating Manim code...';
-      case 'rendering-video': return 'Rendering animation...';
-      case 'completed': return 'Generation complete!';
-      default: return '';
-    }
+  const handleFeedback = (isPositive: boolean) => {
+    console.log(`Feedback received: ${isPositive ? 'positive' : 'negative'} for generation ${currentGenerationId}`);
   };
-  
+
   const pollStatus = async (taskId: string) => {
     const response = await fetch(`${API_BASE}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
@@ -55,6 +61,7 @@ export function ManimInterface() {
     setVideoUrl('');
     setGeneratedCode('');
     setCurrentStep('generating-code');
+    setCurrentGenerationId(null);
 
     try {
       const response = await fetch(`${API_BASE}/generate`, {
@@ -73,6 +80,7 @@ export function ManimInterface() {
 
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
+      setCurrentGenerationId(task_id);
 
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -131,7 +139,6 @@ export function ManimInterface() {
               <span>{getProgressText(currentStep)}</span>
               <span>{getProgressPercentage(currentStep)}%</span>
             </div>
-            {/* Custom progress bar */}
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
@@ -152,6 +159,12 @@ export function ManimInterface() {
                 className="absolute top-0 left-0 w-full h-full rounded-md"
               />
             </div>
+            {currentGenerationId && (
+              <FeedbackButtons 
+                generationId={currentGenerationId}
+                onFeedback={handleFeedback}
+              />
+            )}
           </div>
         )}
 

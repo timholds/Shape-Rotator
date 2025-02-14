@@ -58,3 +58,5 @@ TODO turn the 3blue1brown videos into a dataset for the model to train on.
 
 Add some buttons with default inputs so people can try it out without having to type anything in.
 - cache these videos so we don't have to regenerate them every time.
+
+Add flake8 and code formatting to the generated code as part of the validation/sanitization 

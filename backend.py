@@ -13,6 +13,7 @@ from enum import Enum
 import httpx
 import time
 from collect_data import DataCollector
+from pydantic import BaseModel
 
 class TaskStatus(str, Enum):
     PENDING = "pending"
@@ -33,6 +34,11 @@ class GenerationStatus(BaseModel):
     code: Optional[str] = None
     video_url: Optional[str] = None
     error: Optional[str] = None
+
+class FeedbackRequest(BaseModel):
+    generation_id: str
+    is_positive: bool
+
 
 def generate_manim_code(prompt: str) -> str:
     """Generate basic Manim code template."""
@@ -316,6 +322,21 @@ async def get_video(video_name: str):
     
     return FileResponse(str(video_path))
 
+@app.post("/feedback")
+async def submit_feedback(feedback: FeedbackRequest):
+    """Submit user feedback for a generated animation."""
+    try:
+        await data_collector.update_feedback(
+            generation_id=feedback.generation_id,
+            is_positive=feedback.is_positive
+        )
+        return {"status": "success"}
+    except ValueError as e:
+        # This handles the case where the generation ID isn't found
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        print(f"Error processing feedback: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

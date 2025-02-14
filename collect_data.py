@@ -10,6 +10,7 @@ from moviepy.editor import VideoFileClip
 @dataclass
 class GenerationAttempt:
     # Core metadata
+    id: str
     timestamp: str
     model_version: str  # e.g. "mistral"
     system_prompt: str
@@ -35,13 +36,10 @@ class GenerationAttempt:
         "llm_config": {}
     })
     
-    # User context
-    # user_context: dict[str, any] = field(default_factory=lambda: {
-    #     "options": {},
-    #     "session_id": None
-    # })    
-    # Optional enrichments for different learning approaches
-    extensions: Optional[dict] = None
+    # Feedback data
+    user_feedback: Optional[bool] = None
+    feedback_timestamp: Optional[str] = None
+
 
 class DataCollector:
     def __init__(self, data_dir: Path, media_dir: Path):
@@ -72,6 +70,7 @@ class DataCollector:
         return metadata
 
     async def log_attempt(self, 
+                         id: str, 
                          prompt: str, 
                          code: str, 
                          task_data: dict,
@@ -82,6 +81,7 @@ class DataCollector:
                          render_time: Optional[float] = None) -> None:
         """Log a generation attempt to disk"""
         attempt = GenerationAttempt(
+            id=generation_id,
             timestamp=datetime.utcnow().isoformat(),
             model_version="mistral",
             system_prompt=system_prompt,
@@ -102,6 +102,34 @@ class DataCollector:
         with open(filename, "a") as f:
             f.write(json.dumps(asdict(attempt)) + "\n")
 
+    async def update_feedback(self, generation_id: str, is_positive: bool) -> None:
+        """Update an existing attempt with user feedback"""
+        current_month_file = self.data_dir / f"generation_attempts_{datetime.utcnow():%Y%m}.jsonl"
+        
+        if not current_month_file.exists():
+            raise ValueError(f"No generation file found for ID {generation_id}")
+            
+        attempts = []
+        found = False
+        
+        # Read all attempts
+        with open(current_month_file, "r") as f:
+            for line in f:
+                attempt = GenerationAttempt(**json.loads(line))
+                if attempt.id == generation_id:
+                    attempt.user_feedback = is_positive
+                    attempt.feedback_timestamp = datetime.utcnow().isoformat()
+                    found = True
+                attempts.append(attempt)
+        
+        if not found:
+            raise ValueError(f"Generation {generation_id} not found")
+        
+        # Write back all attempts
+        with open(current_month_file, "w") as f:
+            for attempt in attempts:
+                f.write(json.dumps(asdict(attempt)) + "\n")
+                
 # Utility functions for different learning approaches
 def create_dpo_pairs(data_dir: Path) -> list[tuple[GenerationAttempt, GenerationAttempt]]:
     """Create preference pairs from attempts with same prompt"""
@@ -116,17 +144,19 @@ def create_dpo_pairs(data_dir: Path) -> list[tuple[GenerationAttempt, Generation
     for attempt in attempts:
         by_query.setdefault(attempt.user_query, []).append(attempt)
     
-    # Create success/failure pairs
     pairs = []
     for query_attempts in by_query.values():
-        successes = [a for a in query_attempts 
-                    if a.execution_outcome["status"] == "completed"]
-        failures = [a for a in query_attempts 
-                   if a.execution_outcome["status"] == "failed"]
+        # Prioritize explicit user feedback over execution status
+        positives = [a for a in query_attempts 
+                    if a.user_feedback is True or 
+                    (a.user_feedback is None and a.execution_outcome["status"] == "completed")]
+        negatives = [a for a in query_attempts 
+                    if a.user_feedback is False or
+                    (a.user_feedback is None and a.execution_outcome["status"] == "failed")]
         
-        for success in successes:
-            for failure in failures:
-                pairs.append((success, failure))
+        for positive in positives:
+            for negative in negatives:
+                pairs.append((positive, negative))
     
     return pairs
 
