@@ -153,19 +153,26 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             print(f"Created temp file at: {code_file}")
             print(f"Code contents:\n{code}")
             
-            quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
+            # quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
             manim_cmd = [
-                "manim",
+                "manimgl",
                 str(code_file),
-                quality_flag,
-                "--media_dir", str(MEDIA_DIR.absolute()),
-                "--output_file", str(output_file.absolute())
+                "-w",  # Write to file
+                "--video_dir", str(output_dir.absolute())  # Output directory
             ]
+            
+            # Add quality settings
+            if options.get("quality") == "low":
+                manim_cmd.append("-l")  # Low quality
+            else:
+                manim_cmd.append("--hd")  # High quality
             
             process = await asyncio.create_subprocess_exec(
                 *manim_cmd,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
+                #env={**os.environ, "PYTHONPATH": os.pathsep.join(sys.path)}  # Ensure Python can find manimlib
+
             )
             
             stdout, stderr = await process.communicate()
@@ -259,7 +266,7 @@ app = FastAPI(title="Manim Animation Generator",
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000", "https://theshaperotator.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
