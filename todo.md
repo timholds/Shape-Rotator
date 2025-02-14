@@ -2,6 +2,9 @@
 [ ] make sure we are using manim or manimgl in the function calls deliberately
 [ ] change default quality to low
 [ ] think about encouraging the model to create functions, mobjects, and scenes
+[ ] fix requirements.txt with either manim or manimgl environment that works on ubuntu
+[ ] get enter to start generating content instead of clicking button 
+[ ] if we do use manimgl, come up with a list of footguns / things that have changed and figure out how to work them into the system prompt
 
 how do i set up llama.cpp to run locally?
 
