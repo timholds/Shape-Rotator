@@ -81,7 +81,7 @@ class DataCollector:
                          render_time: Optional[float] = None) -> None:
         """Log a generation attempt to disk"""
         attempt = GenerationAttempt(
-            id=generation_id,
+            id=id,
             timestamp=datetime.utcnow().isoformat(),
             model_version="mistral",
             system_prompt=system_prompt,
@@ -102,12 +102,12 @@ class DataCollector:
         with open(filename, "a") as f:
             f.write(json.dumps(asdict(attempt)) + "\n")
 
-    async def update_feedback(self, generation_id: str, is_positive: bool) -> None:
+    async def update_feedback(self, task_id: str, is_positive: bool) -> None:
         """Update an existing attempt with user feedback"""
         current_month_file = self.data_dir / f"generation_attempts_{datetime.utcnow():%Y%m}.jsonl"
         
         if not current_month_file.exists():
-            raise ValueError(f"No generation file found for ID {generation_id}")
+            raise ValueError(f"No generation file found for ID {task_id}")
             
         attempts = []
         found = False
@@ -116,20 +116,20 @@ class DataCollector:
         with open(current_month_file, "r") as f:
             for line in f:
                 attempt = GenerationAttempt(**json.loads(line))
-                if attempt.id == generation_id:
+                if attempt.id == task_id:
                     attempt.user_feedback = is_positive
                     attempt.feedback_timestamp = datetime.utcnow().isoformat()
                     found = True
                 attempts.append(attempt)
         
         if not found:
-            raise ValueError(f"Generation {generation_id} not found")
+            raise ValueError(f"Generation {task_id} not found")
         
         # Write back all attempts
         with open(current_month_file, "w") as f:
             for attempt in attempts:
                 f.write(json.dumps(asdict(attempt)) + "\n")
-                
+
 # Utility functions for different learning approaches
 def create_dpo_pairs(data_dir: Path) -> list[tuple[GenerationAttempt, GenerationAttempt]]:
     """Create preference pairs from attempts with same prompt"""

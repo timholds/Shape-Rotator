@@ -36,7 +36,7 @@ class GenerationStatus(BaseModel):
     error: Optional[str] = None
 
 class FeedbackRequest(BaseModel):
-    generation_id: str
+    task_id: str
     is_positive: bool
 
 
@@ -205,6 +205,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             }
             
             await data_collector.log_attempt(
+                id=task_id,  # Add this line
                 prompt=prompt,
                 code=code,
                 task_data=generation_tasks[task_id],
@@ -239,6 +240,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         }
 
         await data_collector.log_attempt(
+            id=task_id,  # Add this line
             prompt=prompt,
             code=code if 'code' in locals() else "",
             task_data=generation_tasks[task_id],
@@ -327,7 +329,7 @@ async def submit_feedback(feedback: FeedbackRequest):
     """Submit user feedback for a generated animation."""
     try:
         await data_collector.update_feedback(
-            generation_id=feedback.generation_id,
+            task_id=feedback.task_id,
             is_positive=feedback.is_positive
         )
         return {"status": "success"}

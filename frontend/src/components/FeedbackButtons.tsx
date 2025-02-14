@@ -3,8 +3,6 @@ import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const FeedbackButtons = ({ onFeedback, generationId }) => {
   const [feedback, setFeedback] = useState(null);
-  
-  // Add alert state
   const [showFeedbackAlert, setShowFeedbackAlert] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,39 +37,38 @@ const FeedbackButtons = ({ onFeedback, generationId }) => {
   };
 
   return (
-    <div className="flex items-center gap-4 mt-2">
-      <span className="text-sm text-gray-600">Was this animation helpful?</span>
-      <button
-        onClick={() => handleFeedback(true)}
-        disabled={feedback !== null || isSubmitting}
-        className={`p-2 rounded-full transition-colors ${
-          feedback === true
-            ? 'bg-green-100 text-green-600'
-            : 'hover:bg-gray-100 text-gray-500'
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
-        aria-label="Thumbs up"
-      >
-        <ThumbsUp size={20} />
-      </button>
-      <button
-        onClick={() => handleFeedback(false)}
-        disabled={feedback !== null || isSubmitting}
-        className={`p-2 rounded-full transition-colors ${
-          feedback === false
-            ? 'bg-red-100 text-red-600'
-            : 'hover:bg-gray-100 text-gray-500'
-        } disabled:opacity-50 disabled:cursor-not-allowed`}
-        aria-label="Thumbs down"
-      >
-        <ThumbsDown size={20} />
-      </button>
-      {feedback !== null && (
-        <span className="text-sm text-gray-600">Thanks for your feedback!</span>
-      )}
-    </div>
-  );
-};
-
+    <div className="relative">
+      <div className="flex items-center gap-4 mt-2">
+        <span className="text-sm text-gray-600">Was this animation helpful?</span>
+        <button
+          onClick={() => handleFeedback(true)}
+          disabled={feedback !== null || isSubmitting}
+          className={`p-2 rounded-full transition-colors ${
+            feedback === true
+              ? 'bg-green-100 text-green-600'
+              : 'hover:bg-gray-100 text-gray-500'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+          aria-label="Thumbs up"
+        >
+          <ThumbsUp size={20} />
+        </button>
+        <button
+          onClick={() => handleFeedback(false)}
+          disabled={feedback !== null || isSubmitting}
+          className={`p-2 rounded-full transition-colors ${
+            feedback === false
+              ? 'bg-red-100 text-red-600'
+              : 'hover:bg-gray-100 text-gray-500'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+          aria-label="Thumbs down"
+        >
+          <ThumbsDown size={20} />
+        </button>
+        {feedback !== null && (
+          <span className="text-sm text-gray-600">Thanks for your feedback!</span>
+        )}
+      </div>
+      
       {showFeedbackAlert && (
         <div className="absolute bottom-4 right-4 bg-green-100 text-green-800 px-4 py-2 rounded-md shadow-md">
           Feedback submitted successfully!
