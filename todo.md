@@ -1,6 +1,7 @@
 # TODO
 [ ] make sure we are using manim or manimgl in the function calls deliberately
 [ ] change default quality to low
+[ ] think about encouraging the model to create functions, mobjects, and scenes
 
 how do i set up llama.cpp to run locally?
 
@@ -76,5 +77,10 @@ cd your-repo
 docker-compose up -d
 ```
 
-# Set up Nginx as reverse proxy
+Set up Nginx as reverse proxy
 `sudo apt install nginx`
+
+
+# Potential Data Sources
+https://themanimrepository.wordpress.com/
+https://docs.manim.community/en/stable/examples.html

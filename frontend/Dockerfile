@@ -1,11 +1,11 @@
-# Frontend Dockerfile
-# ./Dockerfile
-FROM node:18-alpine as frontend-builder
+FROM node:18-alpine
 
-WORKDIR /app/frontend
+WORKDIR /app
 
-# Copy frontend dependencies
+# Copy package files
 COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
 # Copy frontend source
@@ -15,44 +15,12 @@ COPY tsconfig.json ./
 COPY tailwind.config.js ./
 COPY postcss.config.js ./
 
-# Build frontend
+# Build the app
 RUN npm run build
 
-# Backend stage
-FROM python:3.10-slim
+# Install serve to run the built app
+RUN npm install -g serve
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    texlive-latex-base \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
-    texlive-latex-extra \
-    python3-pygments \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+EXPOSE 3000
 
-WORKDIR /app
-
-# Install Python dependencies
-RUN pip install --no-cache-dir \
-    fastapi==0.104.1 \
-    uvicorn==0.24.0 \
-    python-multipart==0.0.6 \
-    httpx==0.25.1 \
-    moviepy==1.0.3 \
-    pydantic==2.4.2 \
-    manim
-
-# Copy backend code
-COPY backend.py collect_data.py ./
-COPY system_prompt.txt ./
-
-# Copy built frontend from previous stage
-COPY --from=frontend-builder /app/frontend/build ./static
-
-# Create necessary directories
-RUN mkdir -p media training_data
-
-EXPOSE 8000
-
-CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["serve", "-s", "build", "-l", "3000"]

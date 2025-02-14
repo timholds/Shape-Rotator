@@ -1,23 +1,38 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - DOMAIN=your-domain.com
-      - ENVIRONMENT=production
     volumes:
-      - ./media:/app/media
-      - ./training_data:/app/training_data
-    restart: unless-stopped
+      - ./backend/media:/app/media
+      - ./backend/training_data:/app/training_data
+    environment:
+      - DOMAIN=theshaperotator.com
+      - ENVIRONMENT=production
+    depends_on:
+      - ollama
 
   ollama:
     image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    restart: unless-stopped
 
 volumes:
   ollama_data:
