@@ -16,16 +16,6 @@ export function ManimInterface() {
 
   const API_BASE = 'http://localhost:8000';
   
-  const getProgressText = (step: GenerationStep) => {
-    switch (step) {
-      case 'idle': return 'Ready to generate';
-      case 'generating-code': return 'Generating Manim code...';
-      case 'rendering-video': return 'Rendering animation...';
-      case 'completed': return 'Generation complete!';
-      default: return '';
-    }
-  };
-
   const getProgressPercentage = (step: GenerationStep) => {
     switch (step) {
       case 'idle': return 0;
@@ -33,6 +23,16 @@ export function ManimInterface() {
       case 'rendering-video': return 66;
       case 'completed': return 100;
       default: return 0;
+    }
+  };
+
+  const getProgressText = (step: GenerationStep) => {
+    switch (step) {
+      case 'idle': return 'Ready to generate';
+      case 'generating-code': return 'Generating Manim code...';
+      case 'rendering-video': return 'Rendering animation...';
+      case 'completed': return 'Generation complete!';
+      default: return '';
     }
   };
 
@@ -80,6 +80,8 @@ export function ManimInterface() {
 
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
+      
+      console.log('Received task_id:', task_id); // Debug log
       setCurrentGenerationId(task_id);
 
       while (true) {
@@ -159,12 +161,14 @@ export function ManimInterface() {
                 className="absolute top-0 left-0 w-full h-full rounded-md"
               />
             </div>
-            {currentGenerationId && (
-              <FeedbackButtons 
-                generationId={currentGenerationId}
-                onFeedback={handleFeedback}
-              />
-            )}
+            <div className="mt-4">
+              {currentGenerationId && (
+                <FeedbackButtons 
+                  taskId={currentGenerationId}
+                  onFeedback={handleFeedback}
+                />
+              )}
+            </div>
           </div>
         )}
 

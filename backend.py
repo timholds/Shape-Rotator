@@ -38,6 +38,7 @@ class GenerationStatus(BaseModel):
 class FeedbackRequest(BaseModel):
     task_id: str
     is_positive: bool
+    remove: bool = False
 
 
 def generate_manim_code(prompt: str) -> str:
@@ -327,18 +328,26 @@ async def get_video(video_name: str):
 @app.post("/feedback")
 async def submit_feedback(feedback: FeedbackRequest):
     """Submit user feedback for a generated animation."""
+    print("Received feedback request:", feedback.dict())  # Debug incoming request
     try:
         await data_collector.update_feedback(
             task_id=feedback.task_id,
-            is_positive=feedback.is_positive
+            is_positive=feedback.is_positive,
+            remove=feedback.remove
         )
-        return {"status": "success"}
+        return {"status": "success",
+                "message": "Feedback removed" if feedback.remove else "Feedback recorded",
+                "feedback_type": "removed" if feedback.remove else ("positive" if feedback.is_positive else "negative")
+        }
     except ValueError as e:
-        # This handles the case where the generation ID isn't found
+        print(f"ValueError in feedback submission: {str(e)}")
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"Error processing feedback: {e}")
+        print(f"Unexpected processing feedback submission: {str(e)}")
+        # import traceback
+        # print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
