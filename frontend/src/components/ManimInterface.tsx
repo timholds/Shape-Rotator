@@ -14,8 +14,10 @@ export function ManimInterface() {
   const [currentStep, setCurrentStep] = useState<GenerationStep>('idle');
   const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
 
-  const API_BASE = 'http://localhost:8000';
-  
+  const API_BASE = process.env.NODE_ENV === 'production' 
+    ? `https://${window.location.hostname}` 
+    : 'http://localhost:8000';
+    
   const getProgressPercentage = (step: GenerationStep) => {
     switch (step) {
       case 'idle': return 0;

@@ -1,3 +1,7 @@
+# TODO
+[ ] make sure we are using manim or manimgl in the function calls deliberately
+[ ] change default quality to low
+
 how do i set up llama.cpp to run locally?
 
 What is the best model to use? codestral-25.01
@@ -60,3 +64,17 @@ Add some buttons with default inputs so people can try it out without having to 
 - cache these videos so we don't have to regenerate them every time.
 
 Add flake8 and code formatting to the generated code as part of the validation/sanitization 
+
+automatically save events when the code doesn't run
+
+# Deployment
+add DROPLET_IP, DROPLET_USER, and SSH_PRIVATE_KEY to the GH repo environment variables
+on the droplet, run 
+```
+git clone your-repo
+cd your-repo
+docker-compose up -d
+```
+
+# Set up Nginx as reverse proxy
+`sudo apt install nginx`
