@@ -57,7 +57,7 @@ class {class_name}(Scene):
 
 async def generate_manim_code_with_llm(prompt: str) -> str:
     """Generate Manim code using Ollama. Falls back to template if LLM fails."""
-    with open("system_prompt.txt", "r") as f:
+    with open("backend/system_prompt.txt", "r") as f:
         system_prompt = f.read()
     
     try:
@@ -190,7 +190,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             render_time = time.time() - generation_start
 
             # Read system prompt
-            with open("system_prompt.txt", "r") as f:
+            with open("backend/system_prompt.txt", "r") as f:
                 system_prompt = f.read()
 
             # Log the attempt with all metadata
@@ -226,7 +226,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         })
 
         # Log failed attempts too
-        with open("system_prompt.txt", "r") as f:
+        with open("backend/system_prompt.txt", "r") as f:
             system_prompt = f.read()
 
         generation_metadata = {
