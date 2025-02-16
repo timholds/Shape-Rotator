@@ -5,3 +5,4 @@ videos/
 *.jsonl
 *.mp4
 *.mov
+*env*/
