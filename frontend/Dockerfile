@@ -9,18 +9,17 @@ COPY package*.json ./
 RUN npm ci
 
 # Copy frontend source
-COPY public/ ./public/
-COPY src/ ./src/
-COPY tsconfig.json ./
-COPY tailwind.config.js ./
-COPY postcss.config.js ./
+COPY . .
+
+# Set environment variables
+ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NODE_ENV=production
 
 # Build the app
 RUN npm run build
 
-# Install serve to run the built app
-RUN npm install -g serve
-
+# Expose port
 EXPOSE 3000
 
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Start the application
+CMD ["npm", "start"]

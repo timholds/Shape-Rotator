@@ -14,6 +14,15 @@ import httpx
 import time
 from collect_data import DataCollector
 from pydantic import BaseModel
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+SYSTEM_PROMPT_PATH = os.getenv('SYSTEM_PROMPT_PATH', 'backend/system_prompt.txt')
+logger.info(f"Starting backend server with SYSTEM_PROMPT_PATH: {SYSTEM_PROMPT_PATH}")
+
+print(f"System prompt path at startup: {SYSTEM_PROMPT_PATH}")
 
 class TaskStatus(str, Enum):
     PENDING = "pending"
@@ -57,7 +66,7 @@ class {class_name}(Scene):
 
 async def generate_manim_code_with_llm(prompt: str) -> str:
     """Generate Manim code using Ollama. Falls back to template if LLM fails."""
-    with open("backend/system_prompt.txt", "r") as f:
+    with open(SYSTEM_PROMPT_PATH, "r") as f:
         system_prompt = f.read()
     
     try:
@@ -189,8 +198,8 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             # Calculate total render time
             render_time = time.time() - generation_start
 
-            # Read system prompt
-            with open("backend/system_prompt.txt", "r") as f:
+            # Read system prompt to log with the attempt
+            with open(SYSTEM_PROMPT_PATH, "r") as f:
                 system_prompt = f.read()
 
             # Log the attempt with all metadata
@@ -226,7 +235,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         })
 
         # Log failed attempts too
-        with open("backend/system_prompt.txt", "r") as f:
+        with open(SYSTEM_PROMPT_PATH, "r") as f:
             system_prompt = f.read()
 
         generation_metadata = {

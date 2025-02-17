@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
-const FeedbackButtons = ({ onFeedback, taskId }) => {
-  const [feedback, setFeedback] = useState(null);
+
+interface FeedbackButtonsProps {
+  onFeedback: (isPositive: boolean) => void;  // Changed to only accept boolean
+  taskId: string;
+}
+
+
+const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback, taskId }) => {
+  const [feedback, setFeedback] = useState<boolean | null>(null);
   const [showFeedbackAlert, setShowFeedbackAlert] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  const handleFeedback = async (newFeedback) => {
+  const handleFeedback = async (newFeedback: boolean) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     
     try {
-      // If clicking the same button again, we're removing feedback
       const isRemoving = feedback === newFeedback;
       const payload = {
         task_id: taskId,
@@ -36,12 +42,13 @@ const FeedbackButtons = ({ onFeedback, taskId }) => {
         throw new Error('Failed to submit feedback');
       }
       
-      // Update feedback state
       const newFeedbackState = isRemoving ? null : newFeedback;
       setFeedback(newFeedbackState);
-      onFeedback?.(newFeedbackState);
+      // Only call onFeedback when we have a boolean value
+      if (newFeedbackState !== null) {
+        onFeedback(newFeedbackState);
+      }
 
-      // Show appropriate message
       setAlertMessage(isRemoving ? 'Feedback removed!' : 'Feedback submitted!');
       setShowFeedbackAlert(true);
       setTimeout(() => setShowFeedbackAlert(false), 3000);
