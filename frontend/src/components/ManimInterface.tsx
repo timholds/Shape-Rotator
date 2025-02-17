@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import FeedbackButtons from '@/components/FeedbackButtons';
 
 type GenerationStep = 'idle' | 'generating-code' | 'rendering-video' | 'completed';
@@ -13,11 +13,18 @@ export function ManimInterface() {
   const [error, setError] = useState('');
   const [currentStep, setCurrentStep] = useState<GenerationStep>('idle');
   const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
+  const [apiBase, setApiBase] = useState('');
 
-  const API_BASE = process.env.NODE_ENV === 'production' 
-    ? `https://${window.location.hostname}` 
-    : 'http://localhost:8000';
-    
+  useEffect(() => {
+    // Set API base URL only after component mounts
+    setApiBase(
+      process.env.NEXT_PUBLIC_API_URL || 
+      (typeof window !== 'undefined' 
+        ? `${window.location.protocol}//${window.location.hostname}:8000`
+        : 'http://localhost:8000')
+    );
+  }, []);
+
   const getProgressPercentage = (step: GenerationStep) => {
     switch (step) {
       case 'idle': return 0;
@@ -43,11 +50,10 @@ export function ManimInterface() {
   };
 
   const pollStatus = async (taskId: string) => {
-    const response = await fetch(`${API_BASE}/status/${taskId}`);
+    const response = await fetch(`${apiBase}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
     const status = await response.json();
     
-    // Update code and generation step based on status
     if (status.code && !generatedCode) {
       setGeneratedCode(status.code);
       setCurrentStep('rendering-video');
@@ -58,6 +64,8 @@ export function ManimInterface() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!apiBase) return; // Don't proceed if apiBase isn't set yet
+    
     setIsLoading(true);
     setError('');
     setVideoUrl('');
@@ -66,7 +74,7 @@ export function ManimInterface() {
     setCurrentGenerationId(null);
 
     try {
-      const response = await fetch(`${API_BASE}/generate`, {
+      const response = await fetch(`${apiBase}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -83,7 +91,6 @@ export function ManimInterface() {
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
       
-      console.log('Received task_id:', task_id); // Debug log
       setCurrentGenerationId(task_id);
 
       while (true) {
@@ -91,7 +98,7 @@ export function ManimInterface() {
         const status = await pollStatus(task_id);
         
         if (status.status === 'completed' && status.video_url) {
-          setVideoUrl(`${API_BASE}${status.video_url}`);
+          setVideoUrl(`${apiBase}${status.video_url}`);
           setCurrentStep('completed');
           break;
         } else if (status.status === 'failed') {
@@ -117,6 +124,14 @@ export function ManimInterface() {
             <textarea
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (userPrompt.trim() && !isLoading) {
+                    handleSubmit(e);
+                  }
+                }
+              }}
               placeholder="Describe the animation you want to create..."
               className="w-full h-32 p-2 border rounded-md"
               required
