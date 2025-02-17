@@ -22,7 +22,12 @@ logger = logging.getLogger(__name__)
 SYSTEM_PROMPT_PATH = os.getenv('SYSTEM_PROMPT_PATH', 'backend/system_prompt.txt')
 logger.info(f"Starting backend server with SYSTEM_PROMPT_PATH: {SYSTEM_PROMPT_PATH}")
 
-print(f"System prompt path at startup: {SYSTEM_PROMPT_PATH}")
+def get_ollama_url() -> str:
+    """Get the appropriate Ollama URL based on the environment."""
+    # Check if running in Docker
+    base_url = "http://ollama:11434" if os.environ.get("ENVIRONMENT") == "production" else "http://localhost:11434"
+    return f"{base_url}/api/generate/mistral"  # Changed to use model-specific endpoint
+
 
 class TaskStatus(str, Enum):
     PENDING = "pending"
@@ -70,17 +75,28 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
         system_prompt = f.read()
     
     try:
+        ollama_url = get_ollama_url()
+        logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
+
         # First try with LLM
         async with httpx.AsyncClient() as client:
+            payload = {
+                "model": "mistral",
+                "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
+                "stream": False
+            }
+            logger.info(f"Sending request with payload: {payload}")  # Added logging
+            
             response = await client.post(
-                "http://localhost:11434/api/generate",
-                json={
-                    "model": "mistral",
-                    "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
-                    "stream": False
-                },
+                ollama_url,
+                json=payload,
                 timeout=30.0
             )
+            
+            # Additional logging for debugging
+            if response.status_code != 200:
+                logger.error(f"Ollama API error: {response.status_code} - {response.text}")
+                
             response.raise_for_status()
             result = response.json()
             return sanitize_manim_code(result['response'])

@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libgirepository1.0-dev \
     pkg-config \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
