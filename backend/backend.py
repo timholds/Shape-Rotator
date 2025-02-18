@@ -19,6 +19,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 SYSTEM_PROMPT_PATH = os.getenv('SYSTEM_PROMPT_PATH', 'backend/system_prompt.txt')
 logger.info(f"Starting backend server with SYSTEM_PROMPT_PATH: {SYSTEM_PROMPT_PATH}")
 
@@ -75,24 +76,19 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
         system_prompt = f.read()
     
     try:
-        ollama_url = get_ollama_url()
-        logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
-
-        # First try with LLM
+        # ollama_url = get_ollama_url()
+        # logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
         async with httpx.AsyncClient() as client:
-            payload = {
-                "model": "mistral",
-                "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
-                "stream": False
-            }
-            logger.info(f"Sending request with payload: {payload}")  # Added logging
-            
             response = await client.post(
-                ollama_url,
-                json=payload,
-                timeout=30.0
+                f"{OLLAMA_HOST}/api/generate",
+                json={
+                    "model": "mistral",
+                    "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
+                    "stream": False
+                },
+                timeout=10.0
             )
-            
+      
             # Additional logging for debugging
             if response.status_code != 200:
                 logger.error(f"Ollama API error: {response.status_code} - {response.text}")
@@ -104,6 +100,7 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
     except Exception as e:
         print(f"LLM generation failed: {str(e)}, falling back to template")
         # Fall back to template generation if LLM fails
+        print(f"Full error details: {type(e).__name__}: {str(e)}")  # Enhanced error logging
         return generate_manim_code(prompt)
 
 def sanitize_class_name(prompt: str) -> str:
