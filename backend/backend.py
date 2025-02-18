@@ -78,7 +78,16 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
     try:
         # ollama_url = get_ollama_url()
         # logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
-        async with httpx.AsyncClient() as client:
+        print(f"Attempting to connect to Ollama at: {OLLAMA_HOST}")
+        # async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            try: 
+                version_check = await client.get(f"{OLLAMA_HOST}/api/version")
+                print(f"Version check response: {version_check.status_code}")
+            except Exception as e:
+                print(f"Version check failed: {str(e)}")
+
+            print(f"Making generate request to: {OLLAMA_HOST}/api/generate")
             response = await client.post(
                 f"{OLLAMA_HOST}/api/generate",
                 json={
@@ -86,12 +95,16 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
                     "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
                     "stream": False
                 },
-                timeout=10.0
+                timeout=60.0
             )
       
             # Additional logging for debugging
             if response.status_code != 200:
                 logger.error(f"Ollama API error: {response.status_code} - {response.text}")
+                print(f"Error response from Ollama: {response.status_code}")
+                print(f"Response content: {response.text}")
+                raise Exception(f"Ollama API returned status code {response.status_code}")
+                
                 
             response.raise_for_status()
             result = response.json()
