@@ -95,7 +95,7 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
                     "prompt": f"{system_prompt}\n\nUser request: {prompt}\n\nGenerate Manim code for this request.",
                     "stream": False
                 },
-                timeout=60.0
+                timeout=120.0
             )
       
             # Additional logging for debugging
