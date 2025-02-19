@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import FeedbackButtons from '@/components/FeedbackButtons';
+import FeedbackButtons from './FeedbackButtons';
+import styles from './ManimInterface.module.css';
 
 type GenerationStep = 'idle' | 'generating-code' | 'rendering-video' | 'completed';
 
@@ -16,7 +17,6 @@ export function ManimInterface() {
   const [apiBase, setApiBase] = useState('');
 
   useEffect(() => {
-    // Set API base URL only after component mounts
     setApiBase(
       process.env.NEXT_PUBLIC_API_URL || 
       (typeof window !== 'undefined' 
@@ -64,7 +64,7 @@ export function ManimInterface() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apiBase) return; // Don't proceed if apiBase isn't set yet
+    if (!apiBase) return;
     
     setIsLoading(true);
     setError('');
@@ -115,12 +115,12 @@ export function ManimInterface() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-white shadow rounded-lg p-6">
-        <h1 className="text-2xl font-bold mb-4">Manim Animation Generator</h1>
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <h1 className={styles.title}>Manim Animation Generator</h1>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className="w-full">
             <textarea
               value={userPrompt}
               onChange={(e) => setUserPrompt(e.target.value)}
@@ -133,34 +133,32 @@ export function ManimInterface() {
                 }
               }}
               placeholder="Describe the animation you want to create..."
-              className="w-full h-32 p-2 border rounded-md"
+              className={styles.textarea}
               required
             />
           </div>
           <button 
             type="submit" 
             disabled={isLoading || !userPrompt.trim()}
-            className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className={styles.button}
           >
             {isLoading ? 'Generating...' : 'Generate Animation'}
           </button>
         </form>
 
         {error && (
-          <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-md">
-            {error}
-          </div>
+          <div className={styles.error}>{error}</div>
         )}
 
         {isLoading && (
-          <div className="mt-6 space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
+          <div className={styles.progressContainer}>
+            <div className={styles.progressText}>
               <span>{getProgressText(currentStep)}</span>
               <span>{getProgressPercentage(currentStep)}%</span>
             </div>
-            <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className={styles.progressBar}>
               <div 
-                className="h-full bg-blue-500 transition-all duration-500 ease-in-out"
+                className={styles.progressFill}
                 style={{ width: `${getProgressPercentage(currentStep)}%` }}
               />
             </div>
@@ -168,32 +166,32 @@ export function ManimInterface() {
         )}
 
         {videoUrl && (
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Generated Animation:</h3>
-            <div className="relative w-full pt-[56.25%] bg-gray-100 rounded-md">
+          <div className={styles.videoContainer}>
+            <h3 className={styles.videoTitle}>Generated Animation:</h3>
+            <div className={styles.videoWrapper}>
               <video
                 key={videoUrl}
                 src={videoUrl}
                 controls
-                className="absolute top-0 left-0 w-full h-full rounded-md"
+                className={styles.video}
               />
             </div>
-            <div className="mt-4">
-              {currentGenerationId && (
+            {currentGenerationId && (
+              <div className="mt-4">
                 <FeedbackButtons 
                   taskId={currentGenerationId}
                   onFeedback={handleFeedback}
                 />
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
         {generatedCode && (
-          <div className="mt-6">
-            <h3 className="font-semibold mb-2">Generated Manim Code:</h3>
-            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-sm">
-              <code>{generatedCode}</code>
+          <div className={styles.codeContainer}>
+            <h3 className={styles.videoTitle}>Generated Manim Code:</h3>
+            <pre className={styles.codeBlock}>
+              <code className={styles.codeText}>{generatedCode}</code>
             </pre>
           </div>
         )}

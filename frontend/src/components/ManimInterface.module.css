@@ -1,0 +1,80 @@
+.container {
+  @apply w-full max-w-4xl mx-auto px-4 py-8;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 md:p-8;
+}
+
+.title {
+  @apply text-2xl font-bold mb-6 text-gray-900 dark:text-white;
+}
+
+.form {
+  @apply space-y-4;
+}
+
+.textarea {
+  @apply w-full h-32 p-3 
+         border border-gray-300 dark:border-gray-600 rounded-lg
+         bg-white dark:bg-gray-700 
+         text-gray-900 dark:text-gray-100
+         focus:ring-2 focus:ring-blue-500 focus:border-transparent
+         placeholder-gray-400 dark:placeholder-gray-500;
+}
+
+.button {
+  @apply w-full py-3 px-4 
+         bg-blue-600 hover:bg-blue-700 
+         disabled:bg-gray-400 disabled:cursor-not-allowed
+         text-white font-medium rounded-lg transition-colors
+         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.error {
+  @apply mt-4 p-4 bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-200 rounded-lg;
+}
+
+.progressContainer {
+  @apply mt-6 space-y-2;
+}
+
+.progressText {
+  @apply flex justify-between text-sm text-gray-600 dark:text-gray-400;
+}
+
+.progressBar {
+  @apply w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden;
+}
+
+.progressFill {
+  @apply h-full bg-blue-600 transition-all duration-500 ease-in-out;
+}
+
+.videoContainer {
+  @apply mt-6;
+}
+
+.videoTitle {
+  @apply font-semibold mb-2 text-gray-900 dark:text-white;
+}
+
+.videoWrapper {
+  @apply relative w-full pt-[56.25%] bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden;
+}
+
+.video {
+  @apply absolute inset-0 w-full h-full;
+}
+
+.codeContainer {
+  @apply mt-6;
+}
+
+.codeBlock {
+  @apply bg-gray-100 dark:bg-gray-700 p-4 rounded-lg overflow-x-auto;
+}
+
+.codeText {
+  @apply text-sm text-gray-800 dark:text-gray-200;
+}
