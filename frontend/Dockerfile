@@ -5,7 +5,10 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies including TypeScript support
+# Install dependencies including TypeScript support and Geist
+RUN npm install -g typescript @types/node
+RUN npm install geist
 RUN npm ci
 
 # Copy frontend source
