@@ -225,6 +225,13 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
                 
             relative_path = output_file.relative_to(MEDIA_DIR)
             video_url = f"/videos/{relative_path}"
+
+            print(f"Output file exists: {output_file.exists()}")
+            print(f"Output file path: {output_file}")
+            print(f"MEDIA_DIR path: {MEDIA_DIR}")
+            print(f"Relative path: {relative_path}")
+            print(f"Video URL: {video_url}")
+
             
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
