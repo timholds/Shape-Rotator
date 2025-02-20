@@ -1,0 +1,64 @@
+services:
+  frontend:
+    image: ${DOCKER_HUB_USERNAME}/shape-frontend:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=https://${DOMAIN}
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: always
+
+  backend:
+    image: ${DOCKER_HUB_USERNAME}/shape-backend:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - /root/media:/app/media
+      - /root/training_data:/app/training_data
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ENVIRONMENT=production
+      - SYSTEM_PROMPT_PATH=system_prompt.txt
+      - OLLAMA_HOST=http://ollama:11434
+    networks:
+      - app-network
+    depends_on:
+      ollama:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - app-network
+    entrypoint: ["sh", "-c"]
+    command: >
+      "apt update && apt install -y curl &&
+      ollama serve"
+    healthcheck:
+      test: |
+        curl -f http://ollama:11434/api/version && 
+        (curl -s http://ollama:11434/api/show | grep -q '"model":"mistral"' || 
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"mistral"}')
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  ollama_data:
