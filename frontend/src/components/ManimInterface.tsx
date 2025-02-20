@@ -50,14 +50,19 @@ export function ManimInterface() {
   };
 
   const pollStatus = async (taskId: string) => {
+    console.log(`Polling status for task ${taskId}`);
     const response = await fetch(`${apiBase}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
     const status = await response.json();
+    console.log('Poll response:', status);  // Add this line
     
     if (status.code && !generatedCode) {
       setGeneratedCode(status.code);
       setCurrentStep('rendering-video');
     }
+    
+    return status;
+  };
     
     return status;
   };
