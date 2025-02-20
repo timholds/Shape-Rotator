@@ -63,13 +63,12 @@ export function ManimInterface() {
     
     return status;
   };
-    
-    return status;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!apiBase) return; // Don't proceed if apiBase isn't set yet
+    
+    console.log('Starting submission with apiBase:', apiBase);  // Add this
     
     setIsLoading(true);
     setError('');
@@ -79,6 +78,7 @@ export function ManimInterface() {
     setCurrentGenerationId(null);
 
     try {
+      console.log('Making initial generate request...');  // Add this
       const response = await fetch(`${apiBase}/generate`, {
         method: 'POST',
         headers: {
@@ -95,15 +95,20 @@ export function ManimInterface() {
 
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
+      console.log('Received task_id:', task_id);  // Add this
       
       setCurrentGenerationId(task_id);
 
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const status = await pollStatus(task_id);
+        console.log('Poll response:', status);  // Add this
         
         if (status.status === 'completed' && status.video_url) {
-          setVideoUrl(`${apiBase}${status.video_url}`);
+          const fullVideoUrl = `${apiBase}${status.video_url}`;
+          console.log('Video URL from status:', status.video_url);  // Add this
+          console.log('Full video URL constructed:', fullVideoUrl);  // Add this
+          setVideoUrl(fullVideoUrl);
           setCurrentStep('completed');
           break;
         } else if (status.status === 'failed') {
@@ -111,8 +116,8 @@ export function ManimInterface() {
         }
       }
     } catch (err) {
+      console.error('Error details:', err);  // Enhanced error logging
       setError(err instanceof Error ? err.message : 'Failed to generate animation');
-      console.error('Error:', err);
       setCurrentStep('idle');
     } finally {
       setIsLoading(false);
