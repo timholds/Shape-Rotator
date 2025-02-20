@@ -51,10 +51,11 @@ jobs:
       - name: Add host key to known_hosts
         run: ssh-keyscan -H ${{ secrets.DIGITAL_OCEAN_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Copy docker-compose file
+      - name: Copy configuration files
         run: |
           scp docker-compose.prod.yml root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/docker-compose.yml
           scp .env.prod root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/.env
+          scp nginx.conf root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/nginx.conf
 
       - name: Deploy to DigitalOcean
         run: |

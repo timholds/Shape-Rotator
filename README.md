@@ -1,3 +1,50 @@
+# Conor
+POST /generate
+
+Creates a new animation
+Expects JSON body:
+
+jsonCopy{
+  "prompt": "string",
+  "options": {
+    "quality": "low",
+    "resolution": "720p"
+  }
+}
+
+GET /status/{task_id}
+
+Checks status of an animation generation task
+Returns the status, code, and video URL if completed
+
+
+GET /videos/{video_name}
+
+Retrieves a generated video file
+
+
+POST /feedback
+
+Submits feedback for a generated animation
+Expects JSON body:
+
+jsonCopy{
+  "task_id": "string",
+  "is_positive": boolean,
+  "remove": boolean
+}
+
+```
+manim_cmd = [
+                "manim",
+                str(code_file),
+                quality_flag,
+                "--media_dir", str(MEDIA_DIR.absolute()),
+                "--output_file", str(output_file.absolute())
+            ]
+```
+
+--- 
 
 Things to try:
 Fine tuning a llama
