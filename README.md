@@ -3,7 +3,7 @@ POST /generate
 
 Creates a new animation
 Expects JSON body:
-
+```
 jsonCopy{
   "prompt": "string",
   "options": {
@@ -11,28 +11,29 @@ jsonCopy{
     "resolution": "720p"
   }
 }
+```
 
 GET /status/{task_id}
-
-Checks status of an animation generation task
-Returns the status, code, and video URL if completed
+- Checks status of an animation generation task
+- Returns the status, code, and video URL if completed
 
 
 GET /videos/{video_name}
-
-Retrieves a generated video file
+- Retrieves a generated video file
 
 
 POST /feedback
+- Submits feedback for a generated animation
+- Expects JSON body:
 
-Submits feedback for a generated animation
-Expects JSON body:
-
+```
 jsonCopy{
   "task_id": "string",
   "is_positive": boolean,
   "remove": boolean
 }
+```
+
 
 ```
 manim_cmd = [
@@ -43,6 +44,12 @@ manim_cmd = [
                 "--output_file", str(output_file.absolute())
             ]
 ```
+
+Trying to run:  
+`certbot certonly --standalone -d theshaperotator.com`  
+Could not bind TCP port 80 because it is already in use by another process on
+this system (such as a web server). Please stop the program in question and then
+try again.
 
 --- 
 
