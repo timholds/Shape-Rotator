@@ -197,6 +197,12 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
                 "--output_file", str(output_file.absolute())
             ]
             
+            print(f"About to run manim with command: {' '.join(manim_cmd)}")
+            print(f"Current directory: {os.getcwd()}")
+            print(f"Media directory exists: {MEDIA_DIR.exists()}")
+            print(f"Media directory permissions: {oct(MEDIA_DIR.stat().st_mode)[-3:]}")
+
+
             process = await asyncio.create_subprocess_exec(
                 *manim_cmd,
                 stdout=asyncio.subprocess.PIPE,
@@ -206,6 +212,10 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             stdout, stderr = await process.communicate()
             stdout_text = stdout.decode()
             stderr_text = stderr.decode()
+
+            print(f"Manim process return code: {process.returncode}")
+            print(f"Stdout: {stdout_text}")
+            print(f"Stderr: {stderr_text}")
             
             if process.returncode != 0:
                 raise Exception(f"Manim error: {stderr_text}")
