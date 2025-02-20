@@ -7,7 +7,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
-      - NODE_ENV=production
+      - NODE_ENV=development
     depends_on:
       backend:
         condition: service_healthy
@@ -23,7 +23,7 @@ services:
       - ./backend/training_data:/app/training_data
     environment:
       - DOMAIN=theshaperotator.com
-      - ENVIRONMENT=production
+      - ENVIRONMENT=development
       - SYSTEM_PROMPT_PATH=system_prompt.txt
       - OLLAMA_HOST=http://ollama:11434
     networks:

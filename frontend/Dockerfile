@@ -12,8 +12,8 @@ RUN npm ci
 COPY . .
 
 # Set environment variables
-ENV NEXT_PUBLIC_API_URL=http://localhost:8000
-ENV NODE_ENV=production
+# ENV NEXT_PUBLIC_API_URL=http://localhost:8000
+# ENV NODE_ENV=production
 
 # Build the app
 RUN npm run build
