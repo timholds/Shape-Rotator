@@ -15,14 +15,20 @@ export function ManimInterface() {
   const [currentGenerationId, setCurrentGenerationId] = useState<string | null>(null);
   const [apiBase, setApiBase] = useState('');
 
+  
   useEffect(() => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
+    
     if (!baseUrl) {
       console.error('NEXT_PUBLIC_API_URL is not set!');
       // Only fall back to localhost in development
-      setApiBase(process.env.NODE_ENV === 'development' 
+      const fallbackUrl = process.env.NODE_ENV === 'development' 
         ? 'http://localhost:8000'
-        : '');
+        : '/api';
+      console.log('Using fallback URL:', fallbackUrl);
+      setApiBase(fallbackUrl);
     } else {
       console.log('Using API base URL:', baseUrl);
       setApiBase(baseUrl);
