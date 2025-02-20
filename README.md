@@ -1,4 +1,7 @@
 # Conor
+Sorry man, not quite there yet. Im getting Failed to fetch
+when i try the query "show a circle changing into a square" at https://theshaperotator.com/
+
 POST /generate
 
 Creates a new animation
