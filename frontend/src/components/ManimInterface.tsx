@@ -16,13 +16,17 @@ export function ManimInterface() {
   const [apiBase, setApiBase] = useState('');
 
   useEffect(() => {
-    // Set API base URL only after component mounts
-    setApiBase(
-      process.env.NEXT_PUBLIC_API_URL || 
-      (typeof window !== 'undefined' 
-        ? `${window.location.protocol}//${window.location.hostname}:8000`
-        : 'http://localhost:8000')
-    );
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!baseUrl) {
+      console.error('NEXT_PUBLIC_API_URL is not set!');
+      // Only fall back to localhost in development
+      setApiBase(process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:8000'
+        : '');
+    } else {
+      console.log('Using API base URL:', baseUrl);
+      setApiBase(baseUrl);
+    }
   }, []);
 
   const getProgressPercentage = (step: GenerationStep) => {
