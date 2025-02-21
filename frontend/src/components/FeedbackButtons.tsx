@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
 
-
 interface FeedbackButtonsProps {
-  onFeedback: (isPositive: boolean) => void;  // Changed to only accept boolean
+  onFeedback: (isPositive: boolean) => void;
   taskId: string;
+  apiBase: string; // Add this prop
 }
 
-
-const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback, taskId }) => {
+const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback, taskId, apiBase }) => {
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const [showFeedbackAlert, setShowFeedbackAlert] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,8 +26,9 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback, taskId })
       };
       
       console.log('Sending feedback payload:', payload);
+      console.log('Sending to URL:', `${apiBase}/feedback`);
       
-      const response = await fetch('http://localhost:8000/feedback', {
+      const response = await fetch(`${apiBase}/feedback`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,6 @@ const FeedbackButtons: React.FC<FeedbackButtonsProps> = ({ onFeedback, taskId })
       
       const newFeedbackState = isRemoving ? null : newFeedback;
       setFeedback(newFeedbackState);
-      // Only call onFeedback when we have a boolean value
       if (newFeedbackState !== null) {
         onFeedback(newFeedbackState);
       }

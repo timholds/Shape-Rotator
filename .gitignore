@@ -6,3 +6,4 @@ videos/
 *.mp4
 *.mov
 *env*/
+node_modules/

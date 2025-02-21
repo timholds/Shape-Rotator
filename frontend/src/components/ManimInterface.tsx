@@ -203,11 +203,13 @@ export function ManimInterface() {
                 <FeedbackButtons 
                   taskId={currentGenerationId}
                   onFeedback={handleFeedback}
+                  apiBase={apiBase} 
                 />
               )}
             </div>
           </div>
         )}
+
 
         {generatedCode && (
           <div className="mt-6">
