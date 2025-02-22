@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from spaces_storage import SpacesStorage
 
@@ -157,9 +157,16 @@ def sanitize_manim_code(code: str) -> str:
         
     return '\n'.join(lines)
 
+app = FastAPI(title="Manim Animation Generator",
+             description="API for generating mathematical animations using Manim",
+             version="1.0.0")
+
+spaces = SpacesStorage()
+
 async def generate_animation(task_id: str, prompt: str, options: dict):
     """Background task for animation generation."""
-    output_dir = MEDIA_DIR / task_id
+    # output_dir = MEDIA_DIR / task_id
+    output_dir = Path("./temp") / task_id
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "animation.mp4"
 
@@ -191,22 +198,14 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             print(f"Code contents:\n{code}")
             
             quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
-            manim_cmd = [
+            process = await asyncio.create_subprocess_exec(
                 "manim",
                 str(code_file),
                 quality_flag,
-                "--media_dir", str(MEDIA_DIR.absolute()),
-                "--output_file", str(output_file.absolute())
-            ]
-            
-            print(f"About to run manim with command: {' '.join(manim_cmd)}")
-            print(f"Current directory: {os.getcwd()}")
-            print(f"Media directory exists: {MEDIA_DIR.exists()}")
-            print(f"Media directory permissions: {oct(MEDIA_DIR.stat().st_mode)[-3:]}")
-
-
-            process = await asyncio.create_subprocess_exec(
-                *manim_cmd,
+                # "--media_dir", str(MEDIA_DIR.absolute()),
+                # "--output_file", str(output_file.absolute())
+                "--media_dir", str(output_dir.absolute()),
+                "--output_file", str(output_file.absolute()),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
@@ -214,26 +213,22 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             stdout, stderr = await process.communicate()
             stdout_text = stdout.decode()
             stderr_text = stderr.decode()
-
-            print(f"Manim process return code: {process.returncode}")
-            print(f"Stdout: {stdout_text}")
-            print(f"Stderr: {stderr_text}")
             
             if process.returncode != 0:
                 raise Exception(f"Manim error: {stderr_text}")
             
             if not output_file.exists():
                 raise Exception("Video file not generated")
-                
-            relative_path = output_file.relative_to(MEDIA_DIR)
-            video_url = f"/videos/{relative_path}"
+            
+            # Upload to Spaces instead of keeping locally
+            video_url = await spaces.upload_video(output_file, task_id)
+            if not video_url:
+                raise Exception("Failed to upload video to storage")
 
-            print(f"Output file exists: {output_file.exists()}")
-            print(f"Output file path: {output_file}")
-            print(f"MEDIA_DIR path: {MEDIA_DIR}")
-            print(f"Relative path: {relative_path}")
-            print(f"Video URL: {video_url}")
-
+            generation_tasks[task_id].update({
+                "status": TaskStatus.COMPLETED,
+                "video_url": video_url  # This will now be the Spaces URL
+            })
             
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
@@ -270,6 +265,11 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
                 stderr=stderr_text,
                 render_time=render_time
             )
+
+            # Clean up temporary files
+            output_file.unlink()
+            output_dir.rmdir()
+
             
     except Exception as e:
         error_str = str(e)
@@ -306,9 +306,14 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             render_time=time.time() - generation_start
         )
 
-app = FastAPI(title="Manim Animation Generator",
-             description="API for generating mathematical animations using Manim",
-             version="1.0.0")
+        try:
+            if output_file.exists():
+                output_file.unlink()
+            if output_dir.exists():
+                output_dir.rmdir()
+        except Exception as cleanup_error:
+            print(f"Error during cleanup: {cleanup_error}")
+
 
 # Configure CORS
 app.add_middleware(
@@ -319,12 +324,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Directory to store generated videos
-MEDIA_DIR = Path("./media")
-MEDIA_DIR.mkdir(exist_ok=True)
+# Directory for collecting training data and feedback
+TRAINING_DIR = Path("./training_data")
+TRAINING_DIR.mkdir(exist_ok=True)
 
-app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR)), name="videos")
-data_collector = DataCollector(Path("./training_data"), MEDIA_DIR)
+# Temporary directory for video generation
+TEMP_DIR = Path("./temp")
+TEMP_DIR.mkdir(exist_ok=True)
+
+data_collector = DataCollector(TRAINING_DIR, TEMP_DIR)
 
 # In-memory task storage
 generation_tasks: dict[str, dict] = {}
@@ -370,14 +378,15 @@ async def get_status(task_id: str):
         error=task_data.get("error")
     )
 
-@app.get("/videos/{video_name}")
-async def get_video(video_name: str):
+@app.get("/videos/{task_id}")
+async def get_video(task_id: str):
     """Retrieve a generated video file."""
-    video_path = MEDIA_DIR / video_name
-    if not video_path.exists():
+    video_url = await spaces.get_video_url(task_id)
+    if not video_url:
         raise HTTPException(status_code=404, detail="Video not found")
     
-    return FileResponse(str(video_path))
+    # Redirect to the Spaces URL
+    return RedirectResponse(url=video_url)
 
 @app.post("/feedback")
 async def submit_feedback(feedback: FeedbackRequest):
