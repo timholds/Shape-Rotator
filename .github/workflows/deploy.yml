@@ -2,7 +2,7 @@ name: Deploy to DigitalOcean
 
 on:
   push:
-    branches:["main", "storage_bucket"]
+    branches: ["main", "storage_bucket"]
 
 jobs:
   build-and-push:
