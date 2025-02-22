@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from spaces_storage import SpacesStorage
+
 from pydantic import BaseModel
 import tempfile
 import os
