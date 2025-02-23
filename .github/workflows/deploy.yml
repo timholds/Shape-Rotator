@@ -58,6 +58,8 @@ jobs:
           scp nginx.conf root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/nginx.conf
 
       - name: Deploy to DigitalOcean
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
             # Pull the latest images
