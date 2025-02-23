@@ -106,8 +106,7 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
                 print(f"Error response from Ollama: {response.status_code}")
                 print(f"Response content: {response.text}")
                 raise Exception(f"Ollama API returned status code {response.status_code}")
-                
-                
+                              
             response.raise_for_status()
             result = response.json()
             return sanitize_manim_code(result['response'])
@@ -176,6 +175,9 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
     sanitization_changes = []
 
     try:
+        generation_tasks[task_id].update({
+            "status": TaskStatus.PROCESSING,
+        })
         # Generate code using LLM
         try:
             code = await generate_manim_code_with_llm(prompt)
@@ -187,7 +189,6 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             llm_time = time.time() - llm_start
 
         generation_tasks[task_id].update({
-            "status": TaskStatus.PROCESSING,
             "code": code
         })
         
@@ -228,11 +229,6 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
                 "video_url": video_url  # This will now be the Spaces URL
-            })
-            
-            generation_tasks[task_id].update({
-                "status": TaskStatus.COMPLETED,
-                "video_url": video_url
             })
 
             # Calculate total render time
@@ -314,7 +310,18 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         except Exception as cleanup_error:
             print(f"Error during cleanup: {cleanup_error}")
 
-
+async def cleanup_old_videos():
+    """Remove videos older than 24 hours from Spaces"""
+    try:
+        # List objects in bucket
+        old_videos = await spaces_client.list_objects(
+            prefix="videos/",
+            older_than=datetime.now() - timedelta(hours=24)
+        )
+        for video in old_videos:
+            await spaces_client.delete_object(video.key)
+    except Exception as e:
+        logger.error(f"Cleanup failed: {e}")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

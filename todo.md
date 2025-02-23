@@ -1,3 +1,8 @@
+# Deployment
+[ ] Get the code to show after generating a video (everytime user hits enter, not just the first time)
+[ ] figure out why its taking so long to run for an average small query - theres probably a blog post about llm latency in there
+
+
 # TODO
 [ ] make sure we are using manim or manimgl in the function calls deliberately
 [ ] change default quality to low
