@@ -7,3 +7,4 @@ videos/
 *.mov
 *env*/
 node_modules/
+.env.development

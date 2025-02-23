@@ -40,6 +40,9 @@ services:
       - ENVIRONMENT=production
       - SYSTEM_PROMPT_PATH=system_prompt.txt
       - OLLAMA_HOST=http://ollama:11434
+      - SPACES_KEY=${SPACES_KEY}
+      - SPACES_SECRET=${SPACES_SECRET}
+      - SPACES_BUCKET=${SPACES_BUCKET}
     networks:
       - app-network
     depends_on:
