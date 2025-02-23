@@ -17,13 +17,13 @@ WORKDIR /app
 
 # Copy requirements first for better caching
 COPY requirements_backend.txt .
-RUN pip install --no-cache-dir -r requirements_backend.txt
+RUN pip install --no-cache-dir -r requirements_backend.txt 
 
 # Install Manim
 RUN pip install manim
 
 # Copy backend code
-COPY backend.py collect_data.py ./
+COPY backend.py collect_data.py spaces_storage.py ./ 
 COPY system_prompt.txt ./
 
 # Create necessary directories
