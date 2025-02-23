@@ -60,15 +60,21 @@ jobs:
       - name: Deploy to DigitalOcean
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
-            export DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
+            # Pull the latest images
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-backend:latest
             docker pull ollama/ollama:latest
 
+            # Create required directories
             mkdir -p /root/media
             mkdir -p /root/training_data
 
+            # Stop and remove existing containers
             docker compose down || true
+
+            # Start services with new images
             docker compose up -d
+
+            # Clean up old images
             docker image prune -f
           "

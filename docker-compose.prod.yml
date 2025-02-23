@@ -19,7 +19,7 @@ services:
     expose:
       - "3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_API_URL=https://${DOMAIN}/api
       - NODE_ENV=production
     depends_on:
       backend:
@@ -37,7 +37,7 @@ services:
       - /root/training_data:/app/training_data
     environment:
       - DOMAIN=${DOMAIN}
-      - ENVIRONMENT=${ENVIRONMENT}
+      - ENVIRONMENT={ENVIRONMENT}
       - SYSTEM_PROMPT_PATH=system_prompt.txt
       - OLLAMA_HOST=http://ollama:11434
       - SPACES_KEY=${SPACES_KEY}
