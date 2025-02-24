@@ -62,6 +62,7 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
+            rm -f /root/.env
             # Create a fresh .env file
             echo 'DOMAIN=theshaperotator.com' > /root/.env
             echo 'DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}' >> /root/.env
