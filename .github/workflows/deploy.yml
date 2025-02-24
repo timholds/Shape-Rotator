@@ -62,16 +62,15 @@ jobs:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
-            # Create a fresh .env file with all required variables
-            cat << '\''EOL'\'' > /root/.env
-              DOMAIN=theshaperotator.com
-              DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}
-              ENVIRONMENT=production
-              NEXT_PUBLIC_API_URL=https://theshaperotator.com/api
-              SPACES_KEY=${{ secrets.SPACES_KEY }}
-              SPACES_SECRET=${{ secrets.SPACES_SECRET }}
-              SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}
-              EOL
+            # Create a fresh .env file
+            echo 'DOMAIN=theshaperotator.com' > /root/.env
+            echo 'DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}' >> /root/.env
+            echo 'ENVIRONMENT=production' >> /root/.env
+            echo 'NEXT_PUBLIC_API_URL=https://theshaperotator.com/api' >> /root/.env
+            echo 'SPACES_KEY=${{ secrets.SPACES_KEY }}' >> /root/.env
+            echo 'SPACES_SECRET=${{ secrets.SPACES_SECRET }}' >> /root/.env
+            echo 'SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}' >> /root/.env
+          "
 
             # Pull the latest images
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-frontend:latest
