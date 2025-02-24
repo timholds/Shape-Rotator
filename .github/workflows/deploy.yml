@@ -57,22 +57,16 @@ jobs:
           scp .env.prod root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/.env
           scp nginx.conf root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/nginx.conf
 
+          ssh root@${{ secrets.DIGITAL_OCEAN_HOST }} "
+            echo 'SPACES_KEY=${{ secrets.SPACES_KEY }}' >> /root/.env
+            echo 'SPACES_SECRET=${{ secrets.SPACES_SECRET }}' >> /root/.env
+            echo 'SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}' >> /root/.env
+          "
       - name: Deploy to DigitalOcean
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
           ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
-            rm -f /root/.env
-            # Create a fresh .env file
-            echo 'DOMAIN=theshaperotator.com' > /root/.env
-            echo 'DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}' >> /root/.env
-            echo 'ENVIRONMENT=production' >> /root/.env
-            echo 'NEXT_PUBLIC_API_URL=https://theshaperotator.com/api' >> /root/.env
-            echo 'SPACES_KEY=${{ secrets.SPACES_KEY }}' >> /root/.env
-            echo 'SPACES_SECRET=${{ secrets.SPACES_SECRET }}' >> /root/.env
-            echo 'SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}' >> /root/.env
-          "
-
             # Pull the latest images
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-frontend:latest
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-backend:latest
