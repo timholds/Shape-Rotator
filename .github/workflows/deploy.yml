@@ -57,26 +57,31 @@ jobs:
           scp .env.prod root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/.env
           scp nginx.conf root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/nginx.conf
 
-      - name: Deploy to DigitalOcean
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: |
-          ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
-            # Pull the latest images
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-frontend:latest
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-backend:latest
-            docker pull ollama/ollama:latest
-
-            # Create required directories
-            mkdir -p /root/media
-            mkdir -p /root/training_data
-
-            # Stop and remove existing containers
-            docker compose down || true
-
-            # Start services with new images
-            docker compose up -d
-
-            # Clean up old images
-            docker image prune -f
-          "
+          - name: Deploy to DigitalOcean
+          env:
+            DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          run: |
+            ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_HOST }} "
+              # Update .env file with secrets
+              echo 'SPACES_KEY=${{ secrets.SPACES_KEY }}' >> /root/.env
+              echo 'SPACES_SECRET=${{ secrets.SPACES_SECRET }}' >> /root/.env
+              echo 'SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}' >> /root/.env
+              
+              # Pull the latest images
+              docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-frontend:latest
+              docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/shape-backend:latest
+              docker pull ollama/ollama:latest
+  
+              # Stop and remove existing containers
+              docker compose down || true
+  
+              # Start services with new images
+              docker compose up -d
+  
+              # Wait a moment for containers to start
+              sleep 10
+  
+              # Debug container status
+              echo 'Checking backend container logs:'
+              docker compose logs backend
+            "
