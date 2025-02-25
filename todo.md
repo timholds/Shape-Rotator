@@ -1,3 +1,9 @@
+# General
+[ ] add unit tests
+  [ ] test_storage_bucket
+  [ ] test llama
+  [ ] healthcheck endpoint
+
 # Deployment
 [ ] Get the code to show after generating a video (everytime user hits enter, not just the first time)
 [ ] figure out why its taking so long to run for an average small query - theres probably a blog post about llm latency in there
@@ -5,7 +11,13 @@
 # Storage bucket
 [X] get the keys working from github secrets into the env file
 [ ] fix the error about temp directory not being empty
-  - why does this crash the server?
+[ ] instead of storing the videos in a bucket, consider storing just the code
+[ ] what do we store in the bucket when the video generation fails?
+[ ] why do we need the bucket in the first place? can we use the queing system without the bucket?
+[ ] Add retry logic for failed uploads
+[ ] Implement periodic cleanup for old videos
+[ ] Consider monitoring for Spaces storage usage
+
 
 # TODO
 [ ] add compression to the videos
