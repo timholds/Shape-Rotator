@@ -3,8 +3,16 @@
   [ ] test_storage_bucket
   [ ] test llama
   [ ] healthcheck endpoint
+[ ] add a download button
 
-[ ]
+# Tests
+`python -m pytest tests/test_setup.py -v`
+https://claude.ai/chat/3d04d709-8ca7-4637-9463-ba16c8120ce4
+[ ] Figure out what comptest needs to do and what unit and integration tests do 
+[ ] Add APIs
+  [ ] Add health check API
+  [ ] add manual testing api 
+  [ ] task inspection endpoint
 
 # Deployment
 [ ] Get the code to show after generating a video (everytime user hits enter, not just the first time)
