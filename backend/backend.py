@@ -81,9 +81,6 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
         system_prompt = f.read()
     
     try:
-        if True:  # Change to True to test fallback
-            raise Exception("Forced test exception")
-    
         # ollama_url = get_ollama_url()
         # logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
         print(f"Attempting to connect to Ollama at: {OLLAMA_HOST}")
