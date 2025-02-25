@@ -52,6 +52,8 @@ class GenerationStatus(BaseModel):
     code: Optional[str] = None
     video_url: Optional[str] = None
     error: Optional[str] = None
+    used_fallback: Optional[bool] = None  # Match the existing variable name
+
 
 class FeedbackRequest(BaseModel):
     task_id: str
@@ -190,8 +192,55 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             llm_time = time.time() - llm_start
 
         generation_tasks[task_id].update({
-            "code": code
+            "code": code,
+            "used_fallback": used_fallback  # Use the existing variable
+
         })
+
+         # If this is a fallback, use a static placeholder video instead
+        if is_fallback and os.path.exists("./static/placeholder.mp4"):
+            # Use a pre-generated placeholder
+            static_video_url = f"https://{os.getenv('DOMAIN', 'theshaperotator.com')}/static/placeholder.mp4"
+            
+            generation_tasks[task_id].update({
+                "status": TaskStatus.COMPLETED,
+                "video_url": static_video_url
+            })
+            
+            # Still log the attempt
+            with open(SYSTEM_PROMPT_PATH, "r") as f:
+                system_prompt = f.read()
+
+            # Calculate total time
+            render_time = time.time() - generation_start
+
+            # Log the attempt with all metadata
+            generation_metadata = {
+                "llm_response_time": llm_time,
+                "used_fallback_template": used_fallback,
+                "sanitization_changes": sanitization_changes,
+                "video_type": "static_placeholder",
+                "llm_config": {
+                    "model": "mistral",
+                    "quality": options.get("quality", "low"),
+                    "resolution": options.get("resolution", "720p")
+                }
+            }
+            
+            await data_collector.log_attempt(
+                id=task_id,
+                prompt=prompt,
+                code=code,
+                task_data=generation_tasks[task_id],
+                system_prompt=system_prompt,
+                generation_metadata=generation_metadata,
+                stdout="Used static placeholder",
+                stderr="",
+                render_time=render_time
+            )
+            
+            return  # Exit early, no need for video generation
+        
         
         with tempfile.TemporaryDirectory() as temp_dir:
             code_file = Path(temp_dir) / "scene.py"
@@ -381,7 +430,9 @@ async def get_status(task_id: str):
         status=task_data["status"],
         code=task_data.get("code"),
         video_url=task_data.get("video_url"),
-        error=task_data.get("error")
+        error=task_data.get("error"),
+        used_fallback=task_data.get("used_fallback", False)  # Include fallback status
+
     )
 
 @app.get("/videos/{task_id}")
