@@ -206,7 +206,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         })
 
          # If this is a fallback, use a static placeholder video instead
-        if is_fallback and os.path.exists("./static/placeholder.mp4"):
+        if used_fallback and os.path.exists("./static/placeholder.mp4"):
             # Use a pre-generated placeholder
             static_video_url = f"https://{os.getenv('DOMAIN', 'theshaperotator.com')}/static/placeholder.mp4"
             
