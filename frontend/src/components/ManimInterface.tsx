@@ -115,7 +115,13 @@ export function ManimInterface() {
         console.log('Poll response:', status);  // Add this
         
         if (status.status === 'completed' && status.video_url) {
-          const fullVideoUrl = `${apiBase}${status.video_url}`;
+          let fullVideoUrl;
+          if (status.video_url.startsWith('http')) {
+            fullVideoUrl = status.video_url; // Use the URL directly from DO Spaces
+          } else {
+            fullVideoUrl = `${apiBase}${status.video_url}`; // Prepend API base for relative URLs
+          }
+          
           console.log('Video URL from status:', status.video_url);  // Add this
           console.log('Full video URL constructed:', fullVideoUrl);  // Add this
           setVideoUrl(fullVideoUrl);
