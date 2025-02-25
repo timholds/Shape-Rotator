@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     libgirepository1.0-dev \
     pkg-config \
     curl \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
