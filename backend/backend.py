@@ -17,6 +17,7 @@ import time
 from collect_data import DataCollector
 from pydantic import BaseModel
 import logging
+import shutil 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -263,10 +264,11 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             )
 
             # Clean up temporary files
-            output_file.unlink()
-            output_dir.rmdir()
-
-            
+            try:
+                shutil.rmtree(output_dir)
+            except Exception as cleanup_error:
+                print(f"Warning during cleanup: {cleanup_error}")
+                
     except Exception as e:
         error_str = str(e)
         print(f"Error generating animation: {error_str}")
@@ -303,13 +305,10 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         )
 
         try:
-            if output_file.exists():
-                output_file.unlink()
             if output_dir.exists():
-                output_dir.rmdir()
+                shutil.rmtree(output_dir)
         except Exception as cleanup_error:
-            print(f"Error during cleanup: {cleanup_error}")
-
+            print(f"Warning during cleanup: {cleanup_error}")
 async def cleanup_old_videos():
     """Remove videos older than 24 hours from Spaces"""
     try:

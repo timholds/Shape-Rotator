@@ -2,8 +2,16 @@
 [ ] Get the code to show after generating a video (everytime user hits enter, not just the first time)
 [ ] figure out why its taking so long to run for an average small query - theres probably a blog post about llm latency in there
 
+# Storage bucket
+[X] get the keys working from github secrets into the env file
+[ ] fix the error about temp directory not being empty
+  - why does this crash the server?
 
 # TODO
+[ ] add compression to the videos
+  - install ffmpeg
+  - add a test to make sure it works
+[ ] add video test to make sure the api secrets work
 [ ] make sure we are using manim or manimgl in the function calls deliberately
 [ ] change default quality to low
 [ ] think about encouraging the model to create functions, mobjects, and scenes
