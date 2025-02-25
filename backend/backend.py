@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from spaces_client_storage import spaces_clientStorage
+from spaces_storage import SpacesStorage
 
 from pydantic import BaseModel
 import tempfile
@@ -161,7 +161,7 @@ app = FastAPI(title="Manim Animation Generator",
              description="API for generating mathematical animations using Manim",
              version="1.0.0")
 
-spaces_client = spaces_clientStorage()
+spaces_client = SpacesStorage()
 
 async def generate_animation(task_id: str, prompt: str, options: dict):
     """Background task for animation generation."""
@@ -222,14 +222,14 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             if not output_file.exists():
                 raise Exception("Video file not generated")
             
-            # Upload to spaces_client instead of keeping locally
+            # Upload to storage bucket
             video_url = await spaces_client.upload_video(output_file, task_id)
             if not video_url:
                 raise Exception("Failed to upload video to storage")
 
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
-                "video_url": video_url  # This will now be the spaces_client URL
+                "video_url": video_url  
             })
 
             # Calculate total render time
@@ -310,7 +310,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         except Exception as cleanup_error:
             print(f"Warning during cleanup: {cleanup_error}")
 async def cleanup_old_videos():
-    """Remove videos older than 24 hours from spaces_client"""
+    """Remove videos older than 24 hours from storage bucket"""
     try:
         # List objects in bucket
         old_videos = await spaces_client.list_objects(
@@ -391,7 +391,7 @@ async def get_video(task_id: str):
     if not video_url:
         raise HTTPException(status_code=404, detail="Video not found")
     
-    # Redirect to the spaces_client URL
+    # Redirect to the storage bucket video URL
     return RedirectResponse(url=video_url)
 
 @app.post("/feedback")
