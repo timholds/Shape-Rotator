@@ -81,6 +81,9 @@ async def generate_manim_code_with_llm(prompt: str) -> str:
         system_prompt = f.read()
     
     try:
+        if True:  # Change to True to test fallback
+            raise Exception("Forced test exception")
+    
         # ollama_url = get_ollama_url()
         # logger.info(f"Attempting to connect to Ollama at: {ollama_url}")  # Debug log
         print(f"Attempting to connect to Ollama at: {OLLAMA_HOST}")
@@ -163,6 +166,11 @@ app = FastAPI(title="Manim Animation Generator",
              description="API for generating mathematical animations using Manim",
              version="1.0.0")
 
+# Set up static file serving for local videos
+MEDIA_DIR = Path("./media")
+MEDIA_DIR.mkdir(exist_ok=True)
+(MEDIA_DIR / "videos").mkdir(exist_ok=True)
+app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR / "videos")), name="videos")
 spaces_client = SpacesStorage()
 
 async def generate_animation(task_id: str, prompt: str, options: dict):
@@ -438,12 +446,26 @@ async def get_status(task_id: str):
 @app.get("/videos/{task_id}")
 async def get_video(task_id: str):
     """Retrieve a generated video file."""
-    video_url = await spaces_client.get_video_url(task_id)
+    # Check if task exists
+    if task_id not in generation_tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task_data = generation_tasks[task_id]
+    video_url = task_data.get("video_url")
+    
     if not video_url:
         raise HTTPException(status_code=404, detail="Video not found")
     
-    # Redirect to the storage bucket video URL
-    return RedirectResponse(url=video_url)
+    # If it's a full URL (starts with http), it's stored in Spaces
+    if video_url.startswith("http"):
+        return RedirectResponse(url=video_url)
+    
+    # Otherwise, it's a local path
+    local_path = MEDIA_DIR / video_url.lstrip("/")
+    if not local_path.exists():
+        raise HTTPException(status_code=404, detail="Video file not found")
+    
+    return FileResponse(local_path)
 
 @app.post("/feedback")
 async def submit_feedback(feedback: FeedbackRequest):

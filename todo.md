@@ -13,7 +13,7 @@
 # Storage bucket
 [X] get the keys working from github secrets into the env file
 [X] get something to show up in the bucket 
-[ ] fix the error about temp directory not being empty
+[X] fix the error about temp directory not being empty
 [ ] don't upload the fallback videos to the storage bucket
 [ ] instead of storing the videos in a bucket, consider storing just the code
 [ ] what do we store in the bucket when the video generation fails?
