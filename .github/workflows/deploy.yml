@@ -53,7 +53,7 @@ jobs:
 
       - name: Copy configuration files
         run: |
-          scp docker-compose.prod.yml tim@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/docker-compose.yml
+          scp docker-compose.prod.yml conor@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/docker-compose.yml
           scp .env.prod root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/.env
           scp nginx.conf root@${{ secrets.DIGITAL_OCEAN_HOST }}:/root/nginx.conf
 
