@@ -14,13 +14,18 @@
 [X] get the keys working from github secrets into the env file
 [X] get something to show up in the bucket 
 [X] fix the error about temp directory not being empty
-[ ] don't upload the fallback videos to the storage bucket
-[ ] instead of storing the videos in a bucket, consider storing just the code
-[ ] what do we store in the bucket when the video generation fails?
-[ ] why do we need the bucket in the first place? can we use the queing system without the bucket?
+[X] don't upload the fallback videos to the storage bucket
+[ ] get the code stored the bucket as well
+[ ] get the feedback system to interact with the bucket 
+[ ] make it so videos only stay for 30 days but the code stays forever
 [ ] Add retry logic for failed uploads
 [ ] Implement periodic cleanup for old videos
 [ ] Consider monitoring for Spaces storage usage
+
+## Questions
+[ ] what do we store in the bucket when the video generation fails?
+[ ] why do we need the bucket in the first place? can we use the queing system without the bucket?
+
 
 
 # TODO

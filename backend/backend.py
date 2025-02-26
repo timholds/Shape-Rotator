@@ -51,8 +51,9 @@ class GenerationStatus(BaseModel):
     status: TaskStatus
     code: Optional[str] = None
     video_url: Optional[str] = None
+    code_url: Optional[str] = None 
     error: Optional[str] = None
-    used_fallback: Optional[bool] = None  # Match the existing variable name
+    used_fallback: Optional[bool] = None 
 
 
 class FeedbackRequest(BaseModel):
@@ -196,8 +197,11 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         finally:
             llm_time = time.time() - llm_start
 
+        code_url = await spaces_client.upload_code(code, task_id)
+
         generation_tasks[task_id].update({
             "code": code,
+            "code_url": code_url,
             "used_fallback": used_fallback  # Use the existing variable
 
         })
@@ -435,6 +439,7 @@ async def get_status(task_id: str):
         status=task_data["status"],
         code=task_data.get("code"),
         video_url=task_data.get("video_url"),
+        code_url=task_data.get("code_url"),  # Include the code URL in the response
         error=task_data.get("error"),
         used_fallback=task_data.get("used_fallback", False)  # Include fallback status
 

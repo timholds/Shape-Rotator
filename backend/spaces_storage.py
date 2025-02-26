@@ -7,6 +7,7 @@ import logging
 import asyncio
 from datetime import datetime, timedelta
 import subprocess
+import tempfile
 
 logger = logging.getLogger(__name__)
 
@@ -136,6 +137,58 @@ class SpacesStorage:
         """Get the URL for a video stored in Spaces."""
         try:
             key = f"videos/{task_id}/animation.mp4"
+            self.client.head_object(Bucket=self.bucket, Key=key)
+            return f"https://{self.bucket}.sfo3.digitaloceanspaces.com/{key}"
+        except ClientError:
+            return None
+        
+    async def upload_code(self, code: str, task_id: str) -> Optional[str]:
+        """Upload a code string to DigitalOcean Spaces."""
+        try:
+            key = f"videos/{task_id}/code.py"
+            
+            # Create a temporary file to upload
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
+                temp_file.write(code)
+                temp_path = temp_file.name
+            
+            # Log the upload
+            logger.info(f"Uploading code for task {task_id}")
+            
+            try:
+                self.client.upload_file(
+                    temp_path,
+                    self.bucket,
+                    key,
+                    ExtraArgs={
+                        'ACL': 'public-read',
+                        'ContentType': 'text/plain',
+                        'CacheControl': 'max-age=31536000'  # Cache for 1 year
+                    }
+                )
+                
+                # Clean up temp file
+                os.unlink(temp_path)
+                
+                logger.info(f"Successfully uploaded code for task {task_id}")
+                return f"https://{self.bucket}.sfo3.digitaloceanspaces.com/{key}"
+                
+            except ClientError as e:
+                logger.error(f"Failed to upload code for task {task_id}: {str(e)}")
+                return None
+            finally:
+                # Ensure temp file is removed
+                if os.path.exists(temp_path):
+                    os.unlink(temp_path)
+                
+        except Exception as e:
+            logger.error(f"Unexpected error during code upload for task {task_id}: {str(e)}")
+            return None
+    
+    async def get_code_url(self, task_id: str) -> Optional[str]:
+        """Get the URL for code stored in Spaces."""
+        try:
+            key = f"videos/{task_id}/code.py"
             self.client.head_object(Bucket=self.bucket, Key=key)
             return f"https://{self.bucket}.sfo3.digitaloceanspaces.com/{key}"
         except ClientError:
