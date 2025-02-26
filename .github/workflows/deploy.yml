@@ -59,9 +59,9 @@ jobs:
 
           ssh root@${{ secrets.DIGITAL_OCEAN_HOST }} "
             echo '' >> /root/.env  # Add empty line first
-            echo 'SPACES_KEY=${{ secrets.SPACES_KEY }}' >> /root/.env
-            echo 'SPACES_SECRET=${{ secrets.SPACES_SECRET }}' >> /root/.env
-            echo 'SPACES_BUCKET=${{ secrets.SPACES_BUCKET }}' >> /root/.env
+            echo 'DO_BUCKET_ID=${{ secrets.DO_BUCKET_ID }}' >> /root/.env
+            echo 'DO_BUCKET_SECRET=${{ secrets.DO_BUCKET_SECRET }}' >> /root/.env
+            echo 'DO_BUCKET_SECRET=${{ secrets.DO_BUCKET_SECRET }}' >> /root/.env
           "
       - name: Deploy to DigitalOcean
         env:

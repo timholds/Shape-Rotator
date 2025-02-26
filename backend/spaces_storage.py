@@ -16,7 +16,7 @@ class SpacesStorage:
         self.session = boto3.session.Session()
         
         # Validate environment variables
-        required_vars = ["SPACES_KEY", "SPACES_SECRET", "SPACES_BUCKET"]
+        required_vars = ["DO_BUCKET_ID", "DO_BUCKET_SECRET", "DO_BUCKET_SECRET"]
         missing_vars = [var for var in required_vars if not os.getenv(var)]
         if missing_vars:
             raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
@@ -24,10 +24,10 @@ class SpacesStorage:
         self.client = self.session.client('s3',
             region_name="sfo3",
             endpoint_url="https://sfo3.digitaloceanspaces.com",
-            aws_access_key_id=os.getenv("SPACES_KEY"),
-            aws_secret_access_key=os.getenv("SPACES_SECRET")
+            aws_access_key_id=os.getenv("DO_BUCKET_ID"),
+            aws_secret_access_key=os.getenv("DO_BUCKET_SECRET")
         )
-        self.bucket = os.getenv("SPACES_BUCKET")
+        self.bucket = os.getenv("DO_BUCKET_SECRET")
         
         # Validate bucket access on startup
         try:
