@@ -198,6 +198,9 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             llm_time = time.time() - llm_start
 
         code_url = await spaces_client.upload_code(code, task_id)
+        if code_url is None:
+            logger.warning(f"Failed to upload code for task {task_id}, continuing without code URL")
+
 
         generation_tasks[task_id].update({
             "code": code,

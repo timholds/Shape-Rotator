@@ -1,4 +1,5 @@
 # General
+[ ] fix bug where manim code only shows up the first time you visit the page
 [ ] add unit tests
   [ ] test_storage_bucket
   [ ] test llama

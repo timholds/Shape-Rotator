@@ -151,7 +151,8 @@ class SpacesStorage:
             with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as temp_file:
                 temp_file.write(code)
                 temp_path = temp_file.name
-            
+            logger.info(f"Created temporary file at {temp_path}")
+                        
             # Log the upload
             logger.info(f"Uploading code for task {task_id}")
             
@@ -173,13 +174,14 @@ class SpacesStorage:
                 logger.info(f"Successfully uploaded code for task {task_id}")
                 return f"https://{self.bucket}.sfo3.digitaloceanspaces.com/{key}"
                 
-            except ClientError as e:
-                logger.error(f"Failed to upload code for task {task_id}: {str(e)}")
+            except Exception as e:
+                logger.error(f"Error in upload operation for task {task_id}: {str(e)}", exc_info=True)
                 return None
             finally:
                 # Ensure temp file is removed
-                if os.path.exists(temp_path):
+                if temp_path and os.path.exists(temp_path):
                     os.unlink(temp_path)
+                    logger.info(f"Cleaned up temp file for task {task_id}")
                 
         except Exception as e:
             logger.error(f"Unexpected error during code upload for task {task_id}: {str(e)}")
