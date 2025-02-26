@@ -61,7 +61,7 @@ jobs:
             echo '' >> /root/.env  # Add empty line first
             echo 'DO_BUCKET_ID=${{ secrets.DO_BUCKET_ID }}' >> /root/.env
             echo 'DO_BUCKET_SECRET=${{ secrets.DO_BUCKET_SECRET }}' >> /root/.env
-            echo 'DO_BUCKET_SECRET=${{ secrets.DO_BUCKET_SECRET }}' >> /root/.env
+            echo 'DO_BUCKET_NAME=${{ secrets.DO_BUCKET_NAME }}' >> /root/.env
           "
       - name: Deploy to DigitalOcean
         env:
