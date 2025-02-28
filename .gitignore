@@ -8,3 +8,5 @@ videos/
 *env*/
 node_modules/
 .env.development
+ssl-certificate.key
+ssl-certificate.crt

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - conor_machine_new
 
 jobs:
   build-and-push:
