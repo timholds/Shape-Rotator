@@ -64,9 +64,11 @@ export function ManimInterface() {
     const response = await fetch(`${apiBase}/status/${taskId}`);
     if (!response.ok) throw new Error('Failed to get generation status');
     const status = await response.json();
-    console.log('Poll response:', status);  // Add this line
+    console.log('Poll response:', status);
     
-    if (status.code && !generatedCode) {
+    // FIX: Always update the code if it exists in the response
+    // This ensures we always display the latest code
+    if (status.code) {
       setGeneratedCode(status.code);
       setCurrentStep('rendering-video');
     }
@@ -78,8 +80,9 @@ export function ManimInterface() {
     e.preventDefault();
     if (!apiBase) return; // Don't proceed if apiBase isn't set yet
     
-    console.log('Starting submission with apiBase:', apiBase);  // Add this
+    console.log('Starting submission with apiBase:', apiBase);
     
+    // Ensure state is completely reset
     setIsLoading(true);
     setError('');
     setVideoUrl('');
@@ -88,7 +91,7 @@ export function ManimInterface() {
     setCurrentGenerationId(null);
 
     try {
-      console.log('Making initial generate request...');  // Add this
+      console.log('Making initial generate request...');
       const response = await fetch(`${apiBase}/generate`, {
         method: 'POST',
         headers: {
@@ -105,25 +108,23 @@ export function ManimInterface() {
 
       if (!response.ok) throw new Error('Failed to start generation');
       const { task_id } = await response.json();
-      console.log('Received task_id:', task_id);  // Add this
+      console.log('Received task_id:', task_id);
       
       setCurrentGenerationId(task_id);
 
       while (true) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         const status = await pollStatus(task_id);
-        console.log('Poll response:', status);  // Add this
+        console.log('Poll response:', status);
         
         if (status.status === 'completed' && status.video_url) {
-          let fullVideoUrl;
-          if (status.video_url.startsWith('http')) {
-            fullVideoUrl = status.video_url; // Use the URL directly from DO Spaces
-          } else {
-            fullVideoUrl = `${apiBase}${status.video_url}`; // Prepend API base for relative URLs
+          // Fix: Handle both relative and absolute URLs for videos
+          let fullVideoUrl = status.video_url;
+          if (!status.video_url.startsWith('http')) {
+            fullVideoUrl = `${apiBase}${status.video_url}`;
           }
-          
-          console.log('Video URL from status:', status.video_url);  // Add this
-          console.log('Full video URL constructed:', fullVideoUrl);  // Add this
+          console.log('Video URL from status:', status.video_url);
+          console.log('Full video URL constructed:', fullVideoUrl);
           setVideoUrl(fullVideoUrl);
           setCurrentStep('completed');
           break;
@@ -132,7 +133,7 @@ export function ManimInterface() {
         }
       }
     } catch (err) {
-      console.error('Error details:', err);  // Enhanced error logging
+      console.error('Error details:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate animation');
       setCurrentStep('idle');
     } finally {
