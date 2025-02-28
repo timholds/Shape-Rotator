@@ -1,4 +1,5 @@
 # conor
+- rewrite rule broke stuff?
 - i have fastapi middleware so no need for cors stuff
 - are we overloading port 80 with rotator and 2Bros?
 - main difference is im using a github action and you are using the docker cli 
