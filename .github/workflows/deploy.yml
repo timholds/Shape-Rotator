@@ -1,4 +1,4 @@
-name: Deploy to DigitalOcean
+name: Deploy to TwoBros
 
 on:
   push:
@@ -52,10 +52,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # - name: Generate build ID
-      #   id: prep
-      #   run: |
-      #     echo "build_id=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+      - name: Generate build ID
+        id: prep
+        run: |
+          echo "build_id=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -96,6 +96,15 @@ jobs:
             mkdir -p $PROJECT_DIR/media
             mkdir -p $PROJECT_DIR/training_data
             
+            # Verify that SSL certificates exist
+            if [ ! -f "/etc/ssl/shape-rotator.crt" ] || [ ! -f "/etc/ssl/shape-rotator.key" ]; then
+              echo "WARNING: SSL certificate files not found at expected paths!"
+              echo "Please ensure they exist at: /etc/ssl/shape-rotator.crt and /etc/ssl/shape-rotator.key"
+              echo "Continuing deployment, but SSL might not work..."
+            else
+              echo "SSL certificate files found, continuing deployment..."
+            fi
+            
             # Login to Docker Hub (required for private images)
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p '${{ secrets.DOCKER_HUB_TOKEN }}'
 
@@ -111,7 +120,6 @@ jobs:
             # Clean up old images but only for this project
             docker image prune -f --filter "label=project=shape-rotator"
             
-      
             # Start services with new images and injected environment variables
             DOMAIN="theshaperotator.com" \
             DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}" \
@@ -127,4 +135,7 @@ jobs:
             # Verify containers are running
             echo "Checking container status:"
             docker ps | grep shape
-
+            
+            # Check if we can reach the nginx container
+            echo "Checking nginx container logs:"
+            docker logs $(docker ps -q -f name=tim-rotator-nginx) 2>&1 | tail -20
