@@ -2,9 +2,8 @@
 main difference is im using a github action and you are using the docker cli 
 
 # Deploy to 2BI server
-- i probably dont need - name: Install SSH key section 
-- do i need to add key to known hosts?
-- where is the PROJECT env var getting set / coming from?
+[ ] create the ssl keys in the right place on the server
+- do i need to add the acceptable ip range? probably yeah 
 ### deploy.yml
 
 
