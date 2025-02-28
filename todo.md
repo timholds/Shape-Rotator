@@ -1,5 +1,38 @@
 # conor
-main difference is im using a github action and you are using the docker cli 
+- i have fastapi middleware so no need for cors stuff
+- are we overloading port 80 with rotator and 2Bros?
+- main difference is im using a github action and you are using the docker cli 
+changed CSP  -  add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+
+Explanation  
+CSP Comparison
+
+Stricter CSP: add_header Content-Security-Policy "default-src 'self'" always;
+
+This is a very restrictive policy that only allows resources to be loaded from the same origin (domain).
+All resource types (scripts, styles, images, fonts, etc.) can only be loaded from your own domain.
+Inline scripts and styles are blocked.
+Data URIs are blocked.
+
+
+More permissive CSP: add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" always;
+
+Base policy is still restrictive (default-src 'self').
+Allows inline JavaScript with script-src 'self' 'unsafe-inline'.
+Allows inline CSS with style-src 'self' 'unsafe-inline'.
+Allows images from the same domain and from data URIs with img-src 'self' data:.
+
+
+
+The more permissive CSP is better for most modern web applications for these reasons:
+
+Many frameworks generate inline styles or scripts.
+Modern web development often uses data URIs for small images or icons.
+The stricter CSP would likely cause your application to break unless it was specifically designed for it.
+
+If your application uses React, Next.js, or other modern frameworks, you'll likely need the more permissive policy.
+
+
 
 # Deploy to 2BI server
 [ ] create the ssl keys in the right place on the server
