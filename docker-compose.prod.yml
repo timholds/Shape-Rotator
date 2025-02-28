@@ -47,6 +47,8 @@ services:
     networks:
       - app-network
     depends_on:
+      ollama-init:
+        condition: service_completed_successfully
       ollama:
         condition: service_healthy
     healthcheck:
