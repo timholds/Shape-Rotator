@@ -1,3 +1,13 @@
+# conor
+main difference is im using a github action and you are using the docker cli 
+
+# Deploy to 2BI server
+- i probably dont need - name: Install SSH key section 
+- do i need to add key to known hosts?
+- where is the PROJECT env var getting set / coming from?
+### deploy.yml
+
+
 # General
 [ ] fix bug where manim code only shows up the first time you visit the page
 [ ] add unit tests

@@ -15,7 +15,7 @@ services:
     restart: always
 
   frontend:
-    image: ${DOCKER_HUB_USERNAME}/shape-frontend:latest
+    image: ${DOCKER_USERNAME}/shape-frontend:latest
     expose:
       - "3000"
     environment:
@@ -29,7 +29,7 @@ services:
     restart: always
 
   backend:
-    image: ${DOCKER_HUB_USERNAME}/shape-backend:latest
+    image: ${DOCKER_USERNAME}/shape-backend:latest
     expose:
       - "8000"
     volumes:
