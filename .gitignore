@@ -10,3 +10,9 @@ node_modules/
 .env.development
 ssl-certificate.key
 ssl-certificate.crt
+transcripts/
+3b1b_videos.json
+3b1b_videos_with_code.json
+3b1b_dataset/
+*unmatched_videos.json
+*year_distribution.png
