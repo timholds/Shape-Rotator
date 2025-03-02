@@ -4,6 +4,8 @@ from get_youtube_videos import get_all_3b1b_videos, save_video_metadata
 from get_youtube_transcripts import download_transcripts
 from match_code_to_videos import find_matching_code
 from dataset_builder import build_dataset
+from dotenv import load_dotenv
+load_dotenv('.env.development')
 
 def main():
     parser = argparse.ArgumentParser(description='Build a dataset of 3Blue1Brown videos with transcripts and Manim code')
@@ -23,7 +25,9 @@ def main():
         print("\n=== Step 1: Collecting 3Blue1Brown video metadata ===")
         api_key = args.api_key or os.environ.get('YOUTUBE_API_KEY')
         if not api_key:
-            api_key = input("Enter your YouTube API key: ")
+            print("Checking .env.development for YOUTUBE_API_KEY...")
+            if not api_key:
+                api_key = input("Enter your YouTube API key: ")
         
         videos = get_all_3b1b_videos(api_key)
         save_video_metadata(videos)
