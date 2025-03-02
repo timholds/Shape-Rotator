@@ -76,6 +76,7 @@ class {class_name}(Scene):
         self.wait()
 '''
 
+# TODO rename prompt here to user request
 async def generate_manim_code_with_llm(prompt: str) -> str:
     """Generate Manim code using Ollama. Falls back to template if LLM fails."""
     with open(SYSTEM_PROMPT_PATH, "r") as f:
