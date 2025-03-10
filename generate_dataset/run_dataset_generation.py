@@ -39,19 +39,19 @@ def main():
     # Step 2: Download transcripts
     if not args.skip_transcripts:
         print("\n=== Step 2: Downloading video transcripts ===")
-        download_transcripts('3b1b_videos.json')
+        download_transcripts('generate_dataset/3b1b_videos.json')
     
     # Step 3: Match videos to code
     if not args.skip_code_matching:
         print("\n=== Step 3: Matching videos to Manim code ===")
-        find_matching_code('3b1b_videos.json')
+        find_matching_code('generate_dataset/3b1b_videos.json')
     
     # Step 4: Build the dataset
     print("\n=== Step 4: Building the final dataset ===")
     build_dataset(
-        '3b1b_videos_with_code.json',
-        'transcripts',
-        '3b1b_repo',
+        'generate_dataset/3b1b_videos_with_code.json',
+        'generate_dataset/transcripts',
+        'generate_dataset/3b1b_repo',
         args.output_dir
     )
     

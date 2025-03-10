@@ -70,7 +70,7 @@ def get_all_3b1b_videos(api_key):
     
     return videos
 
-def save_video_metadata(videos, output_file='3b1b_videos.json'):
+def save_video_metadata(videos, output_file='generate_dataset/3b1b_videos.json'):
     """Save the video metadata to a JSON file"""
     with open(output_file, 'w') as f:
         json.dump(videos, f, indent=2)

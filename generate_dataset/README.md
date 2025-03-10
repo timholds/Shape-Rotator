@@ -31,13 +31,13 @@ This project creates a dataset pairing 3Blue1Brown videos with their correspondi
 ## Running the Collection
 
 ```bash
-python main.py
+python generate_data/run_dataset_generation.py
 ```
 
 Or to skip certain steps:
 
 ```bash
-python main.py --skip-videos --skip-transcripts
+python generate_data/run_dataset_generation.py --skip-videos --skip-transcripts
 ```
 
 ## Resulting Dataset Structure

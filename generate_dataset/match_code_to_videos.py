@@ -301,4 +301,4 @@ def find_matching_code(videos_file, repo_dir='3b1b_repo'):
     print(f"Low confidence matches (<70): {len(low_conf)} (may need manual review)")
 
 if __name__ == '__main__':
-    find_matching_code('3b1b_videos.json')
+    find_matching_code('generate_dataset/3b1b_videos.json')

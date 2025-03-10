@@ -224,7 +224,7 @@ if __name__ == "__main__":
 
 if __name__ == '__main__':
     build_dataset(
-        '3b1b_videos_with_code.json', 
-        'transcripts', 
-        '3b1b_repo'
+        'generate_dataset/3b1b_videos_with_code.json', 
+        'generate_dataset/transcripts', 
+        'generate_dataset/3b1b_repo'
     )

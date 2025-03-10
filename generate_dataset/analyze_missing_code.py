@@ -139,8 +139,8 @@ def analyze_missing_matches(dataset_file, output_dir='analysis'):
 
 def main():
     parser = argparse.ArgumentParser(description='Analyze missing code matches in the 3Blue1Brown dataset')
-    parser.add_argument('--dataset', default='3b1b_dataset/index.json', help='Path to the dataset index file')
-    parser.add_argument('--output', default='analysis', help='Directory to save analysis results')
+    parser.add_argument('--dataset', default='generate_dataset/3b1b_dataset/index.json', help='Path to the dataset index file')
+    parser.add_argument('--output', default='generate_dataset/analysis', help='Directory to save analysis results')
     
     args = parser.parse_args()
     analyze_missing_matches(args.dataset, args.output)

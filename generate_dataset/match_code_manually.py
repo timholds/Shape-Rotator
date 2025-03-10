@@ -270,8 +270,8 @@ def add_match_to_dataset(dataset, video, path, repo_dir, dataset_dir):
 
 def main():
     parser = argparse.ArgumentParser(description='Manually match 3Blue1Brown videos to code files')
-    parser.add_argument('--dataset', default='3b1b_dataset', help='Path to the dataset directory')
-    parser.add_argument('--repo', default='3b1b_repo', help='Path to the repository directory')
+    parser.add_argument('--dataset', default='generate_dataset/3b1b_dataset', help='Path to the dataset directory')
+    parser.add_argument('--repo', default='generate_dataset/3b1b_repo', help='Path to the repository directory')
     
     args = parser.parse_args()
     manual_code_matcher(args.dataset, args.repo)
