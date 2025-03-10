@@ -6,7 +6,7 @@ import shutil
 from datetime import datetime
 import readline  # For better CLI input experience
 
-def manual_code_matcher(dataset_dir='3b1b_dataset', repo_dir='3b1b_repo'):
+def manual_code_matcher(dataset_dir='3b1b_dataset', repo_dir='generate_dataset/3b1b_repo'):
     """
     Interactive tool to help manually match videos to code files
     

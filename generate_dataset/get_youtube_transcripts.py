@@ -3,7 +3,7 @@ import os
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
 
-def download_transcripts(videos_file, output_dir='transcripts'):
+def download_transcripts(videos_file, output_dir='generate_dataset/transcripts'):
     """
     Downloads transcripts for all videos in the provided JSON file.
     

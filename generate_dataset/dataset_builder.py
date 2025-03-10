@@ -2,7 +2,7 @@ import os
 import json
 import shutil
 
-def build_dataset(videos_file, transcript_dir, repo_dir, output_dir='3b1b_dataset'):
+def build_dataset(videos_file, transcript_dir, repo_dir, output_dir='generate_dataset/3b1b_dataset'):
     """
     Build the final dataset structure with transcripts and code.
     

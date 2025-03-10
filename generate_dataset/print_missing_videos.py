@@ -8,7 +8,7 @@ import json
 import sys
 import os
 
-def print_missing_videos(dataset_path='3b1b_dataset/index.json'):
+def print_missing_videos(dataset_path='generate_dataset/3b1b_dataset/index.json'):
     """Print all videos that don't have matching code files"""
     
     if not os.path.exists(dataset_path):

@@ -20,7 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description='Tools for the 3Blue1Brown dataset')
     parser.add_argument('command', choices=['list-missing', 'analyze', 'manual-match'], 
                       help='Tool to run')
-    parser.add_argument('--dataset', default='3b1b_dataset', 
+    parser.add_argument('--dataset', default='generate_dataset/3b1b_dataset', 
                       help='Path to dataset directory')
     
     args = parser.parse_args()
@@ -40,7 +40,7 @@ def main():
         analyze_missing_matches(index_path)
     
     elif args.command == 'manual-match':
-        manual_code_matcher(dataset_dir, '3b1b_repo')
+        manual_code_matcher(dataset_dir, 'generate_dataset/3b1b_repo')
     
     return 0
 

@@ -16,14 +16,14 @@ def main():
     parser.add_argument('--skip-videos', action='store_true', help='Skip downloading video metadata')
     parser.add_argument('--skip-transcripts', action='store_true', help='Skip downloading transcripts')
     parser.add_argument('--skip-code-matching', action='store_true', help='Skip matching videos to code')
-    parser.add_argument('--output-dir', default='3b1b_dataset', help='Output directory for the dataset')
+    parser.add_argument('--output-dir', default='generate_dataset/3b1b_dataset', help='Output directory for the dataset')
     parser.add_argument('--analyze', action='store_true', help='Run analysis on missing code matches')
     parser.add_argument('--manual-match', action='store_true', help='Run interactive tool to manually match videos to code')
     
     args = parser.parse_args()
     
     # Create directories
-    os.makedirs('transcripts', exist_ok=True)
+    os.makedirs('generate_dataset/transcripts', exist_ok=True)
     
     # Step 1: Collect YouTube video data
     if not args.skip_videos:
@@ -66,7 +66,7 @@ def main():
     # Optional manual matching
     if args.manual_match:
         print("\n=== Step 6: Manual code matching ===")
-        manual_code_matcher(args.output_dir, '3b1b_repo')
+        manual_code_matcher(args.output_dir, 'generate_dataset/3b1b_repo')
     
     print("\nNOTE: This dataset only contains:")
     print("- Video metadata (titles, descriptions, dates)")
