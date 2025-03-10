@@ -18,3 +18,5 @@ transcripts/
 *year_distribution.png
 *confidence_distribution.png
 *match_types.png
+nohup.out
+no_code.json

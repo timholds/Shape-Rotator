@@ -2,6 +2,7 @@ import os
 from googleapiclient.discovery import build
 import json
 from datetime import datetime
+import isodate
 
 def get_all_3b1b_videos(api_key):
     """
@@ -20,7 +21,9 @@ def get_all_3b1b_videos(api_key):
     
     videos = []
     next_page_token = None
-    
+    video_duration = 'medium,long' if exclude_shorts else 'any'
+
+
     # Paginate through all results
     while True:
         # Get videos from channel, sorted by date
@@ -50,6 +53,7 @@ def get_all_3b1b_videos(api_key):
                 published_at = video_details['snippet']['publishedAt']
                 title = video_details['snippet']['title']
                 description = video_details['snippet']['description']
+                duration = video_details['contentDetails']['duration']  # ISO 8601 duration format
                 
                 # Extract year for GitHub repo matching
                 year = datetime.strptime(published_at, '%Y-%m-%dT%H:%M:%SZ').year
@@ -60,7 +64,8 @@ def get_all_3b1b_videos(api_key):
                     'title': title,
                     'published_at': published_at,
                     'year': year,
-                    'description': description
+                    'description': description,
+                    'duration': duration
                 })
         
         # Check if there are more pages
@@ -68,6 +73,7 @@ def get_all_3b1b_videos(api_key):
         if not next_page_token:
             break
     
+    print(f"Found {len(videos)} videos (excluded shorts)")
     return videos
 
 def save_video_metadata(videos, output_file='3b1b_videos.json'):
