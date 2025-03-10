@@ -73,4 +73,4 @@ def download_transcripts(videos_file, output_dir='transcripts'):
     print(f"Transcript download complete. Success: {success_count}, Failed: {fail_count}")
 
 if __name__ == '__main__':
-    download_transcripts('3b1b_videos.json')
+    download_transcripts('generate_dataset/3b1b_videos.json')

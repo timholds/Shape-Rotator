@@ -40,7 +40,7 @@ def main():
         analyze_missing_matches(index_path)
     
     elif args.command == 'manual-match':
-        manual_code_matcher(dataset_dir, '3b1b_repo')
+        manual_code_matcher(dataset_dir, 'generate_dataset/3b1b_repo')
     
     return 0
 

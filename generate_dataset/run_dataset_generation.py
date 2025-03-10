@@ -16,7 +16,7 @@ def main():
     parser.add_argument('--skip-videos', action='store_true', help='Skip downloading video metadata')
     parser.add_argument('--skip-transcripts', action='store_true', help='Skip downloading transcripts')
     parser.add_argument('--skip-code-matching', action='store_true', help='Skip matching videos to code')
-    parser.add_argument('--output-dir', default='3b1b_dataset', help='Output directory for the dataset')
+    parser.add_argument('--output-dir', default='generate_dataset/3b1b_dataset', help='Output directory for the dataset')
     parser.add_argument('--analyze', action='store_true', help='Run analysis on missing code matches')
     parser.add_argument('--manual-match', action='store_true', help='Run interactive tool to manually match videos to code')
     
@@ -39,19 +39,19 @@ def main():
     # Step 2: Download transcripts
     if not args.skip_transcripts:
         print("\n=== Step 2: Downloading video transcripts ===")
-        download_transcripts('3b1b_videos.json')
+        download_transcripts('generate_dataset/3b1b_videos.json')
     
     # Step 3: Match videos to code
     if not args.skip_code_matching:
         print("\n=== Step 3: Matching videos to Manim code ===")
-        find_matching_code('3b1b_videos.json')
+        find_matching_code('generate_dataset/3b1b_videos.json')
     
     # Step 4: Build the dataset
     print("\n=== Step 4: Building the final dataset ===")
     build_dataset(
-        '3b1b_videos_with_code.json',
-        'transcripts',
-        '3b1b_repo',
+        'generate_dataset/3b1b_videos_with_code.json',
+        'generate_dataset/transcripts',
+        'generate_dataset/3b1b_repo',
         args.output_dir
     )
     
