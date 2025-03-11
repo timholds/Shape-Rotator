@@ -29,10 +29,16 @@ The transcript should help with matches.
 make this a visual reasoning project, try to force the model to do certain types of thinking like considering how hard a chunk would be to implement
 
 coding tags to try to make the model use 
-<code> <math> <text> <visual> <audio> <animation> <interaction> <data> <structure> <algorithm> <complexity> <implementation> <optimization> <debug>
+<code> <math>  
+
+<understand_gestalt>
+<related_ideas> <prerequisites>
+<illutrative_example> <find_illustrative_values>
+<generate_video_transcript>
 <execute_code>
-<layout>
-<video_transcript>
+<layout> <visual>
+<self_check> <self_debug> <modernize_manim>
+
 
 # (Attempt 1) File Structure
 ```
