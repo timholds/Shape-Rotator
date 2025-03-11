@@ -12,6 +12,19 @@ In dataset_builder.py, we need to modify the code handling section to:
 
 This approach has limitations, namely that it doesn't account for the complex repository structure. By handling each of the candidate in isolation, it also prevents comparison between the different options!
 
+# Current Dataset Structure
+output_dir/ (e.g., 'generate_dataset/3b1b_dataset/')
+├── index.json          # Summary of the entire dataset
+├── [video_id_1]/       # Directory for each video
+│   ├── metadata.json   # All video metadata
+│   ├── transcript_clean.txt      # Clean transcript without timestamps
+│   ├── transcript_timestamped.txt # Transcript with timestamps 
+│   └── code/           # Directory for the related code
+│       ├── README.md   # Match information (confidence, type, path)
+│       ├── [code files from repo]  # Actual Python files
+│       └── run_manim.py  # Helper script to run the code (for directory matches)
+├── [video_id_2]/
+
 # 3b1b Repository Structure
 - Direct 1:1 files: Single Python files corresponding to one video
 - 1:1 directories: Directories containing files for a single video
