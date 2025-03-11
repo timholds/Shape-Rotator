@@ -35,7 +35,7 @@ def concatenate_code_files(code_dir, output_file):
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write("".join(all_code))
 
-        
+
 def analyze_imports_and_consolidate(main_file_path, repo_dir, output_file_path):
     """
     Analyze a Python file for imports from the repo and create a consolidated file
@@ -47,7 +47,7 @@ def analyze_imports_and_consolidate(main_file_path, repo_dir, output_file_path):
         output_file_path: Where to save the consolidated file
     """
     import ast
-    import importlib.util
+    import sys
     
     # Read the main file
     with open(main_file_path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -71,22 +71,24 @@ def analyze_imports_and_consolidate(main_file_path, repo_dir, output_file_path):
     consolidated_code = f"# Consolidated code for {os.path.basename(main_file_path)}\n"
     consolidated_code += f"# Original file: {main_file_path}\n\n"
     
+    # Process imports separately, then add code
+    import_sections = []
+    
     # Define a function to process imports recursively
-    def process_imports(file_path, indent="", depth=0):
-        nonlocal consolidated_code
-        
+    def process_imports(file_path, depth=0):
         if depth > 5:  # Prevent infinite recursion
-            consolidated_code += f"{indent}# Max import depth reached for {file_path}\n"
-            return
+            return f"# Max import depth reached for {file_path}\n"
             
         try:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 code = f.read()
         except Exception as e:
-            consolidated_code += f"{indent}# Failed to read {file_path}: {e}\n"
-            return
+            return f"# Failed to read {file_path}: {e}\n"
             
         file_dir = os.path.dirname(file_path)
+        
+        # Track this file's imports
+        file_imports = []
         
         # Parse imports in this file
         try:
@@ -130,8 +132,9 @@ def analyze_imports_and_consolidate(main_file_path, repo_dir, output_file_path):
                 for p in potential_paths:
                     if os.path.exists(p):
                         processed_modules.add(module_name)
-                        consolidated_code += f"\n{indent}# Inlined import: {module_name}\n"
-                        process_imports(p, indent + "    ", depth + 1)
+                        import_section = f"# Inlined import: {module_name}\n"
+                        import_section += process_imports(p, depth + 1)
+                        file_imports.append(import_section)
                         found = True
                         break
                 
@@ -141,31 +144,40 @@ def analyze_imports_and_consolidate(main_file_path, repo_dir, output_file_path):
                         for file in files:
                             if file == f"{item_name}.py":
                                 p = os.path.join(root, file)
-                                consolidated_code += f"\n{indent}# Inlined import: {module_name}.{item_name}\n"
-                                process_imports(p, indent + "    ", depth + 1)
+                                import_section = f"# Inlined import: {module_name}.{item_name}\n"
+                                import_section += process_imports(p, depth + 1)
+                                file_imports.append(import_section)
                                 processed_modules.add(module_name)
                                 found = True
                                 break
                         if found:
                             break
             
-            # Add code (excluding imports for modules we've processed)
+            # Add filtered code (excluding imports we've processed)
+            filtered_code = ""
             lines = code.split('\n')
             for line in lines:
                 if line.strip().startswith(('import ', 'from ')):
                     # Skip imports for modules we've inlined
                     if any(module in line for module in processed_modules):
-                        consolidated_code += f"{indent}# {line}  # Import inlined\n"
+                        filtered_code += f"# {line}  # Import inlined\n"
                         continue
                 
-                consolidated_code += f"{indent}{line}\n"
+                filtered_code += f"{line}\n"
+            
+            # Combine imports with code
+            section = ""
+            for imp in file_imports:
+                section += imp + "\n"
+            section += filtered_code
+            
+            return section
                 
         except SyntaxError:
-            consolidated_code += f"{indent}# Failed to parse {file_path}\n"
-            consolidated_code += f"{indent}{code}\n"
+            return f"# Failed to parse {file_path}\n{code}\n"
     
     # Process the main file
-    process_imports(main_file_path)
+    consolidated_code += process_imports(main_file_path)
     
     # Write the consolidated code
     with open(output_file_path, 'w', encoding='utf-8') as f:
