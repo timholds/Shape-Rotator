@@ -2,8 +2,9 @@ import os
 from googleapiclient.discovery import build
 import json
 from datetime import datetime
+import isodate
 
-def get_all_3b1b_videos(api_key):
+def get_all_3b1b_videos(api_key, exclude_shorts=True):
     """
     Retrieves all videos from the 3Blue1Brown YouTube channel using the YouTube Data API.
     
@@ -21,7 +22,7 @@ def get_all_3b1b_videos(api_key):
     videos = []
     next_page_token = None
     
-    # Paginate through all results
+    # For initial search, we'll get all videos and filter later if needed
     while True:
         # Get videos from channel, sorted by date
         request = youtube.search().list(
@@ -50,23 +51,65 @@ def get_all_3b1b_videos(api_key):
                 published_at = video_details['snippet']['publishedAt']
                 title = video_details['snippet']['title']
                 description = video_details['snippet']['description']
+                duration = video_details['contentDetails']['duration']
                 
                 # Extract year for GitHub repo matching
                 year = datetime.strptime(published_at, '%Y-%m-%dT%H:%M:%SZ').year
                 
+                # Store all video metadata
                 videos.append({
                     'video_id': video_id,
                     'url': f'https://www.youtube.com/watch?v={video_id}',
                     'title': title,
                     'published_at': published_at,
                     'year': year,
-                    'description': description
+                    'description': description,
+                    'duration': duration
                 })
         
         # Check if there are more pages
         next_page_token = response.get('nextPageToken')
         if not next_page_token:
             break
+    
+    # If excluding shorts, filter the videos after fetching
+    if exclude_shorts:
+        # First, get a separate list of videos explicitly categorized as shorts
+        # We'll use the videoDuration=short parameter for this
+        shorts_ids = set()
+        next_page_token = None
+        
+        print("Identifying short videos...")
+        while True:
+            shorts_request = youtube.search().list(
+                part='snippet',
+                channelId=channel_id,
+                maxResults=50,
+                videoDuration='short',  # Specifically look for shorts
+                type='video',
+                pageToken=next_page_token
+            )
+            
+            shorts_response = shorts_request.execute()
+            
+            for item in shorts_response['items']:
+                shorts_ids.add(item['id']['videoId'])
+            
+            next_page_token = shorts_response.get('nextPageToken')
+            if not next_page_token:
+                break
+        
+        # Filter out videos that are in the shorts list
+        original_count = len(videos)
+        videos = [v for v in videos if v['video_id'] not in shorts_ids]
+        
+        # Additional filtering for videos with #shorts in title/description
+        videos = [v for v in videos if not ('#short' in v['title'].lower() or 
+                                           '#short' in v['description'].lower())]
+        
+        print(f"Found {len(videos)} videos (excluded {original_count - len(videos)} shorts)")
+    else:
+        print(f"Found {len(videos)} videos (including shorts)")
     
     return videos
 
