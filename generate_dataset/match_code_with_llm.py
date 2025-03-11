@@ -508,7 +508,7 @@ def confidence_score(match_result):
     else:  # NO or missing
         return 0
 
-def find_matching_code_with_llm(videos_file, transcripts_dir='transcripts', repo_dir='3b1b_repo'):
+def find_matching_code_with_llm(videos_file, transcripts_dir='transcripts', repo_dir='generate_dataset/3b1b_repo'):
     """
     Multi-stage approach to find matching code for videos using LLM assistance.
     """
@@ -615,9 +615,9 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description='Match 3Blue1Brown videos to Manim code using LLM')
-    parser.add_argument('--videos', default='3b1b_videos.json', help='Path to video metadata JSON')
-    parser.add_argument('--transcripts', default='transcripts', help='Directory containing transcripts')
-    parser.add_argument('--repo', default='3b1b_repo', help='Path to cloned 3b1b repository')
+    parser.add_argument('--videos', default='generate_dataset/3b1b_videos.json', help='Path to video metadata JSON')
+    parser.add_argument('--transcripts', default='generate_dataset/transcripts', help='Directory containing transcripts')
+    parser.add_argument('--repo', default='generate_dataset/3b1b_repo', help='Path to cloned 3b1b repository')
     parser.add_argument('--model', default='deepseek-r1:32b', help='Ollama model to use')
     
     args = parser.parse_args()

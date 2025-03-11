@@ -16,7 +16,7 @@ def clone_repo(repo_url, target_dir):
         print(f"Repository already exists at {target_dir}, pulling latest changes...")
         subprocess.run(['git', '-C', target_dir, 'pull'], check=True)
 
-def find_matching_code(videos_file, repo_dir='3b1b_repo'):
+def find_matching_code(videos_file, repo_dir='generate_dataset/3b1b_repo'):
     """
     Find matching Manim code for each video in the metadata file using advanced matching strategies.
     
