@@ -64,6 +64,13 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - app-network
+    deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
       interval: 30s
@@ -80,15 +87,16 @@ services:
     networks:
       - app-network
     command: >
-      sh -c "
-      echo 'Checking if mistral model exists...' &&
-      if ! curl -s http://ollama:11434/api/tags | grep -q '\"name\":\"mistral\"'; then
-        echo 'Pulling mistral model...' &&
-        curl -X POST http://ollama:11434/api/pull -d '{\"name\":\"mistral\"}' &&
-        echo 'Model pull completed'
-      else
-        echo 'Mistral model already exists'
-      fi"
+      command: >
+        sh -c "
+        echo 'Checking if mistral:latest-cuda model exists...' &&
+        if ! curl -s http://ollama:11434/api/tags | grep -q '\"name\":\"mistral:latest-cuda\"'; then
+          echo 'Pulling mistral CUDA model...' &&
+          curl -X POST http://ollama:11434/api/pull -d '{\"name\":\"mistral:latest-cuda\"}' &&
+          echo 'Model pull completed'
+        else
+          echo 'Mistral CUDA model already exists'
+        fi"
     restart: "no"  # Only run once
 
 networks:
