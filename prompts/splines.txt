@@ -1,0 +1,1660 @@
+https://bookdown.org/ssjackson300/Machine-Learning-Lecture-Notes/splines.html
+
+Type to search (Enter for navigation)
+Machine Learning
+Welcome
+Acknowledgements
+Introduction
+What is Machine Learning?
+Motivation
+Recall: Linear Models
+Recall: Least Squares
+Issues
+In This Course…
+Some Remarks
+A Note on These Notes
+Key References
+Some Acronyms
+(PART) Variable Subset Selection
+1 Variable Subset Selection
+1.1 Validation by Prediction Error
+1.1.1 Training Error
+1.1.2 Validation
+1.1.3 Example - Training and Prediction Error
+1.1.4 R-squared
+1.1.5 So, which model?
+1.1.6 Cross-Validation
+1.2 Model Selection Criteria
+1.2.1 Cp
+1.2.2 AIC
+1.2.3 BIC
+1.2.4 Adjusted R-squared value
+1.2.5 Example
+1.2.6 Further points
+2 Model Search Methods
+2.1 Best Subset Selection
+2.2 Forwards Stepwise Selection
+2.3 Backwards Stepwise Selection
+2.3.1 Concluding Remarks
+2.4 Practical Demonstration
+2.4.1 Data handling
+2.4.2 Best Subset Selection
+2.4.3 Forward Stepwise Selection
+2.4.4 Best Subset Selection: Validation
+2.4.5 What about inference?
+2.4.6 Variance of selection based on validation
+2.4.7 Cross-validation
+(PART) Shrinkage
+3 Ridge Regression
+3.1 Introduction to Shrinkage
+3.2 Minimisation
+3.2.1 Example - Regularisation Paths
+3.3 Bias-Variance Trade-Off
+3.3.1 Multicollinearity
+3.3.2 When p
+ is close to n
+3.3.3 Bias-Variance Trade Off in Prediction Error
+3.4 Scalability and Feature Selection
+3.5 Scaling
+3.6 Practical Demonstration
+3.6.1 Removing missing entries
+3.6.2 Ridge regression
+4 The Lasso
+4.1 Disadvantage of Ridge Regression
+4.2 Lasso Regression
+4.2.1 Example - Regularisation Paths
+4.3 Ridge vs. Lasso
+4.3.1 Ridge and Lasso with ℓ
+-norms
+4.3.2 Ridge and Lasso as Constrained Optimisation Problems
+4.3.3 Different λ
+’s
+4.3.4 Predictive Performance
+4.3.5 So…which is better?
+4.4 Practical Demonstration
+4.4.1 Removing missing entries
+4.4.2 Lasso Regression
+5 Choosing λ
+5.1 Importance of λ
+5.2 Selection Criteria?
+5.2.1 Example - Regularisation Paths
+5.3 Cross-Validation
+5.4 Practical Demonstration
+5.4.1 Removing missing entries
+5.4.2 Ridge regression
+5.4.3 Sparsifying the ridge coefficients?
+5.4.4 Lasso regression
+5.4.5 Comparing Predictive Performance for Different λ
+6 Principal Component Regression
+6.1 Reminder
+6.2 Dimension Reduction
+6.3 Principal Component Analysis
+6.3.1 Example: Advertisement Data
+6.4 Principal Component Regression
+6.4.1 Example: Advertisement Data
+6.4.2 How Many Components?
+6.4.3 What about Interpretability?
+6.4.4 PCR - a Summary
+6.5 Practical Demonstration
+(PART) Transformation
+7 Polynomial Regression
+7.1 The Assumption of Linearity
+7.1.1 Example
+7.2 Polynomial Regression Models
+7.2.1 What degree d
+ should I choose?
+7.2.2 Example: Overfitting
+7.2.3 Example: Wage data
+7.2.4 Disadvantages
+7.3 Interpretation or Prediction?
+7.4 Practical Demonstration
+7.4.1 Initial steps
+7.4.2 Polynomial regression
+8 Step Functions
+8.1 Step Functions
+8.1.1 Example: Wage Data
+8.2 Practical Demonstration
+9 Splines
+9.1 Regression Splines
+9.1.1 Why Splines?
+9.1.2 Piecewise Polynomials
+9.1.3 Knots
+9.1.4 Polynomial Degree
+9.1.5 Example: Wage Data
+9.1.6 Constraints and Degrees of Freedom
+9.1.7 General Definition
+9.1.8 Spline Basis Representation
+9.1.9 Example: linear spline, one knot
+9.1.10 Example: Wage Data
+9.2 Practical Demonstration
+9.2.1 Initial steps
+9.2.2 Regression Splines
+9.3 Natural Splines
+9.3.1 Additional Constraints
+9.3.2 Example: Wage Data
+9.3.3 How Many Knots and Where?
+9.4 Practical Demonstration
+9.5 Smoothing Splines
+9.5.1 Minimisation
+9.5.2 Model Fit +
+ Penalty Term
+9.5.3 The Model Fit Term
+9.5.4 The Penalty Term
+9.5.5 Putting it all Together
+9.5.6 Solution
+9.5.7 Tuning λ
+9.6 Practical Demonstration
+9.6.1 Boston Data
+9.6.2 Wage Data
+9.6.3 Drawback
+10 Generalised Additive Models
+10.1 Review (of Part III)
+10.2 GAMs
+10.2.1 Flexibility
+10.2.2 Example: Wage Data
+10.2.3 Pros and Cons
+10.3 Practical Demonstration
+10.4 What Next?
+(PART) Practical Classes
+Practical Class Problem Sheets
+Practical 1 - Subset Selection
+Q1 Data Installation and Initial Manipulation
+Q2 Exploratory Data Analysis
+Q3 Forward Stepwise Regression
+Q4 Best Subset and Backward Selection
+Practical 2 - Subset Selection
+Q1 Predictive Performance
+Q2 Cross-Validation
+Practical 3 - Ridge Regression
+Q1 Ridge Regression
+Q2 Cross-Validation
+Q3 Comparison of Predictive Performance
+Practical 4 - Lasso and PCR Regression
+Q1 Data Analysis
+Q2 Lasso Regression
+Q3 Principal Component Regression
+Q4 Predictive Accuracy of Methods
+Practical 5 - Polynomial and Step Function Regression
+Q1 seatpos Data
+Q2 Boston Data
+Practical 6 - Splines and GAMs
+Q1 Splines
+Q2 GAMs
+Q3 Boston Data
+Practical 1 Solutions
+Q1 Data Installation and Initial Manipulation
+Q2 Exploratory Data Analysis
+Q3 Forward Stepwise Regression
+Q4 Best Subset and Backward Selection
+Practical 2 Solutions
+Q1 Predictive Performance
+Q2 Cross-Validation
+Practical 3 Solutions
+Q1 Ridge Regression
+Q2 Cross-Validation
+Q3 Comparison of Predictive Performance
+Practical 4 Solutions
+Q1 Data Analysis
+Q2 Lasso Regression
+Q3 Principal Component Regression
+Q4 Predictive Accuracy of Methods
+Practical 5 Solutions
+Q1 seatpos Data
+Q2 Boston Data
+Practical 6 Solutions
+Q1 Splines
+Q2 GAMs
+Q3 Boston Data
+Published with bookdown
+Machine Learning
+Chapter 9 Splines
+9.1 Regression Splines
+9.1.1 Why Splines?
+We have seen that polynomial regression leads to flexible and smooth curves, but is trained globally which is problematic.
+Step functions are trained locally but produce “bumpy” fits, which are desirable only in specific applications.
+Regression splines bridge these differences by providing adaptive local smoothness.
+9.1.2 Piecewise Polynomials
+Regression based on splines is a general approach which encompasses different models.
+The basis of regression splines is piecewise polynomial regression.
+Piecewise polynomials are not fitted over the entire range of  
+X
+  but over different regions of  
+X
+ .
+Polynomial regression and step functions are special simple cases of piecewise polynomial regression.
+Standard polynomial regression:
+y
+i
+=
+β
+0
++
+β
+1
+x
+i
++
+β
+2
+x
+2
+i
++
+β
+3
+x
+3
+i
++
+…
++
+β
+d
+x
+d
+i
++
+ϵ
+i
+.
+ 
+Piecewise polynomial regression:
+y
+i
+=
+{
+β
+01
++
+β
+11
+x
+i
++
+β
+21
+x
+2
+i
++
+β
+31
+x
+3
+i
++
+…
++
+β
+d
+1
+x
+d
+i
++
+ϵ
+i
+,
+if
+x
+i
+<
+c
+β
+02
++
+β
+12
+x
+i
++
+β
+22
+x
+2
+i
++
+β
+32
+x
+3
+i
++
+…
++
+β
+d
+2
+x
+d
+i
++
+ϵ
+i
+,
+if
+x
+i
+≥
+c
+,
+ 
+where  
+i
+=
+1
+,
+…
+,
+n
+  in both cases.
+
+The above piecewise polynomial requires two LS fits: one for the samples where  
+x
+<
+c
+ , and one for the samples where  
+x
+≥
+c
+ .
+Within this framework, the cutpoint  
+c
+  is called a knot.
+When there is no knot we have standard polynomial regression.
+When we include only the intercept terms ( 
+β
+01
+,
+β
+02
+ ) we have step-function regression.
+9.1.3 Knots
+Before we had 1 knot leading to 2 different models.
+Of course, we can introduce more than one knot. In general, if we have  
+K
+  knots we are fitting  
+K
++
+1
+  polynomial models.
+Using more knots leads to more flexible polynomials.
+Of course, too many knots  
+→
+  overfitting!
+More on the selection of number of knots later…
+9.1.4 Polynomial Degree
+Linear piecewise:
+y
+=
+{
+β
+01
++
+β
+11
+x
+,
+~if~
+x
+i
+<
+c
+,
+β
+02
++
+β
+12
+x
+,
+~if~
+x
+i
+≥
+c
+.
+ 
+Cubic piecewise:
+y
+=
+{
+β
+01
++
+β
+11
+x
++
+β
+21
+x
+2
++
+β
+31
+x
+3
+,
+~if~
+x
+i
+<
+c
+,
+β
+02
++
+β
+12
+x
++
+β
+22
+x
+2
++
+β
+32
+x
+3
+,
+~if~
+x
+i
+≥
+c
+.
+ 
+
+Here, for simplicity we consider the case  
+K
+=
+1
+ .
+In the first case  
+d
+=
+1
+ , while in the second  
+d
+=
+3
+ .
+The quadratic case with  
+d
+=
+2
+  is usually not considered: it is typically outperformed by the cubic case under complex data structures and does not perform remarkably better than the linear case on simpler data structures.
+In general, cubic piecewise is the most popular choice.
+9.1.5 Example: Wage Data
+We consider the Wage data once again, however, for visual clarity only a subset of the data is considered. In Figure 9.18, we have fit a piecewise cubic polynomial with a single knot placed at age = 50. We can see that there are two different curves on the left and right of the knot (which is what we wanted), however, the discontinuity at age = 50 is obviously not what we wanted!
+Unconstrained piecewise cubic polynomials are fit to a subset of the Wage data.
+Figure 9.1: Unconstrained piecewise cubic polynomials are fit to a subset of the Wage data.
+
+How do we fix this? The answer is to use constraints again!
+
+The two polynomials in the above plot are of the following form.
+w
+a
+g
+e
+=
+{
+f
+1
+(
+a
+g
+e
+)
+=
+β
+01
++
+β
+11
+a
+g
+e
++
+β
+21
+a
+g
+e
+2
++
+β
+31
+a
+g
+e
+3
+,
+if
+a
+g
+e
+<
+50
+,
+f
+2
+(
+a
+g
+e
+)
+=
+β
+02
++
+β
+12
+a
+g
+e
++
+β
+22
+a
+g
+e
+2
++
+β
+32
+a
+g
+e
+3
+,
+if
+a
+g
+e
+≥
+50
+,
+ 
+We can make these two cubic polynomial lines meet at  
+a
+g
+e
+=
+50
+  by imposing the constraint
+β
+01
++
+β
+11
+50
++
+β
+21
+50
+2
++
+β
+31
+50
+3
+=
+β
+02
++
+β
+12
+50
++
+β
+22
+50
+2
++
+β
+32
+50
+3
+ 
+
+Where we can see this as a constraint on a single parameter, since, by rearranging, we get
+β
+01
+=
+β
+02
++
+(
+β
+12
+−
+β
+11
+)
+50
++
+(
+β
+22
+−
+β
+21
+)
+50
+2
++
+(
+β
+32
+−
+β
+31
+)
+50
+3
+ 
+In other words, if we have estimates for  
+^
+β
+11
+ ,  
+^
+β
+21
+ ,  
+^
+β
+31
+ ,  
+^
+β
+02
+ ,  
+^
+β
+12
+ ,  
+^
+β
+22
+  and  
+^
+β
+32
+ , then  
+^
+β
+01
+  is defined by the constraint.
+
+This constraint leads to the continuous piecewise cubic polynomial seen in Figure 9.2.
+Constrained piecewise cubic polynomials are fit to a subset of the Wage data.
+Figure 9.2: Constrained piecewise cubic polynomials are fit to a subset of the Wage data.
+
+This looks better, although the small dip at age = 50 doesn’t make it perfect.
+
+We therefore extend further the strategy based on constraints.
+
+So far we have set  
+f
+1
+(
+a
+g
+e
+=
+50
+)
+=
+f
+2
+(
+a
+g
+e
+=
+50
+)
+ , which ensures continuity.
+We can do the same for the first derivative:  
+f
+′
+1
+(
+a
+g
+e
+=
+50
+)
+=
+f
+′
+2
+(
+a
+g
+e
+=
+50
+)
+ . This will constrain an additional parameter (coefficient), but it will make the function smoother at  
+a
+g
+e
+=
+50
+ .
+Doing the same for the second derivative:  
+f
+′′
+1
+(
+a
+g
+e
+=
+50
+)
+=
+f
+′′
+2
+(
+a
+g
+e
+=
+50
+)
+ , will constrain one more parameter, and the function will become very smooth at  
+a
+g
+e
+=
+50
+ .
+Can we add a further constraint on the third derivative? No, our function is cubic so the 3rd derivative is a constant (it is not a function of  
+a
+g
+e
+ ).
+
+A cubic piecewise polynomial with these three constraints is called a cubic spline.
+
+We fit a cubic spline in Figure 9.3,
+A cubic spline is fit to a subset of the Wage data.
+Figure 9.3: A cubic spline is fit to a subset of the Wage data.
+
+Cubic splines are so popular because they look perfectly smooth to the human eyes! At least that is the claim…
+
+9.1.6 Constraints and Degrees of Freedom
+In the previous example, we started with a cubic piecewise polynomial with 8 unconstrained parameters, so we started with 8 degrees of freedom (df).
+We initially imposed one constraint, which restricted one parameter, so we lost a degree of freedom  
+→
+  8 - 1 = 7 df.
+With the further two constraints: 8 - 3 = 5 df.
+In general, a cubic spline with  
+K
+  knots has  
+4
++
+K
+  degrees of freedom. This is useful to know because as we will see in RStudio we can specify either the number of knots  
+K
+  or just the degrees of freedom.
+
+9.1.7 General Definition
+A degree- 
+d
+  regression spline is a piecewise degree- 
+d
+  polynomial with continuity in derivatives up to degree  
+d
+−
+1
+  at each knot.
+
+The degrees of freedom of a degree- 
+d
+  spline with  
+K
+  knots are  
+(
+d
++
+1
+)
++
+K
+ .
+
+Linear spline: just continuous (2+ 
+K
+  df)
+Quadratic spline: continuous and continuous 1st derivative (3+ 
+K
+  df)
+Cubic spline: continuous and continuous 1st and 2nd derivatives (4+ 
+K
+  df)
+And so on…
+In general, regression splines give us the maximum amount of continuity we can have given the degree  
+d
+ .
+
+9.1.8 Spline Basis Representation
+A degree- 
+d
+  spline with knots at  
+ξ
+k
+  for  
+k
+=
+1
+,
+…
+,
+K
+  can be represented by truncated power basis functions, denoted by  
+b
+i
+  for  
+i
+=
+1
+,
+…
+,
+K
++
+d
+ , so that:
+y
+=
+β
+0
++
+β
+1
+b
+1
+(
+x
+)
++
+…
++
+β
+K
++
+d
+b
+K
++
+d
+(
+x
+)
++
+ϵ
+.
+ 
+
+where:
+b
+1
+(
+x
+)
+=
+x
+1
+⋮
+b
+d
+(
+x
+)
+=
+x
+d
+b
+(
+k
++
+d
+)
+(
+x
+)
+=
+(
+x
+−
+ξ
+k
+)
+d
++
+,
+ 
+k
+=
+1
+,
+…
+,
+K
+,
+ 
+where
+(
+x
+−
+ξ
+k
+)
+d
++
+=
+{
+(
+x
+−
+ξ
+k
+)
+d
+ 
+ 
+if
+x
+>
+ξ
+k
+ 
+ 
+ 
+ 
+ 
+0
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+otherwise
+.
+ 
+
+9.1.9 Example: linear spline, one knot
+In the illustration shown in Figure 9.4, we just have  
+y
+=
+{
+β
+1
+x
+,
+if
+x
+<
+k
+n
+o
+t
+β
+1
+x
++
+β
+2
+(
+x
+−
+k
+n
+o
+t
+)
+,
+if
+x
+≥
+k
+n
+o
+t
+.
+ 
+An illustration of a linear spline with a single knot.
+Figure 9.4: An illustration of a linear spline with a single knot.
+
+See the recommended literature for further detail on the spline basis representation.
+
+9.1.10 Example: Wage Data
+In Figure 9.5, we fit a linear, quadratic and cubic spline with three knots (at the dotted lines) to a subset of the Wage data.
+A linear, quadratic and cubic spline with three knots fit to a subset of the Wage data.
+Figure 9.5: A linear, quadratic and cubic spline with three knots fit to a subset of the Wage data.
+
+9.2 Practical Demonstration
+We will continue analysing the Boston dataset included in library MASS.
+
+9.2.1 Initial steps
+We load library MASS again. As previously, we will analyse medv with respect to the predictor lstat. Once again, for convenience, we will name the response y and the predictor x, and pre-define plot axis labels.
+
+library(MASS)
+y = Boston$medv
+x = Boston$lstat
+y.lab = 'Median Property Value'
+x.lab = 'Lower Status (%)'
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab,
+     main = "", bty = 'l')
+
+
+9.2.2 Regression Splines
+For this analysis we will require package splines.
+
+library(splines)
+Initially let’s fit regression splines by specifying knots. From the previous plot it is not clear where exactly we should place knots, so we will make use of the command summary in order to find the 25th, 50th and 75th percentiles of x, which will be the positions where we will place the knots.
+
+summary(x)
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    1.73    6.95   11.36   12.65   16.95   37.97
+cuts = summary(x)[c(2, 3, 5)] 
+cuts
+## 1st Qu.  Median 3rd Qu. 
+##   6.950  11.360  16.955
+Also, before we fit the splines it is again important to sort the variable x.
+
+sort.x = sort(x)
+For a start lets fit a linear spline using our selected placement of knots. For this we can use command lm() and inside it we use the command bs() in which we specify degree = 1 for a linear spline and knots = cuts for the placement of the knots at the three percentiles. We also calculate the corresponding fitted values and confidence intervals exactly in the same way we did in previous practical demonstrations.
+
+spline1 = lm(y ~ bs(x, degree = 1, knots = cuts))
+pred1 = predict(spline1, newdata = list(x = sort.x), se = TRUE)
+se.bands1 = cbind(pred1$fit + 2 * pred1$se.fit, 
+                  pred1$fit - 2 * pred1$se.fit)
+Having done that we can now produce the corresponding plot.
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Linear Spline", bty = 'l')
+lines(sort.x, pred1$fit, lwd = 2, col = "red")
+matlines(sort.x, se.bands1, lwd = 2, col = "red", lty = 3)
+
+
+Using ?bs we see that instead of using the argument knots we can use the argument df, which are the degrees of freedom. We know that splines have  
+(
+d
++
+1
+)
++
+K
+  degrees of freedom, where  
+d
+  is the degree of the polynomial. So in this case we have 1+1+3 = 5 degrees of freedom. Selecting df = 5 in bs() will automatically use 3 knots placed at the 25th, 50th and 75th percentiles. Below we check whether the plot based on df=5 is indeed the same as the previous plot and as we can see it is.
+
+spline1df = lm(y ~ bs(x, degree = 1, df = 5))
+pred1df = predict(spline1df, newdata = list(x = sort.x), se = TRUE)
+se.bands1df = cbind( pred1df$fit + 2 * pred1df$se.fit, 
+                     pred1df$fit - 2 * pred1df$se.fit )
+
+par(mfrow = c(1, 2))
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Linear Spline (with knots)", bty = 'l')
+lines(sort.x, pred1$fit, lwd = 2, col = "red")
+matlines(sort.x, se.bands1, lwd = 2, col = "red", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Linear Spline (with df)", bty = 'l')
+lines(sort.x, pred1df$fit, lwd = 2, col = "darkred")
+matlines(sort.x, se.bands1df, lwd = 2, col = "red", lty = 3)
+
+
+Having seen how this works we can also fit a degree-2 (quadratic) and degree-3 (cubic) spline to the data, all we have to do is change degree = 1 to degree = 2 and degree = 3 respectively. Also we increase the respective degrees of freedom from df = 5 to df = 6 and df = 7 in order to keep the same number (and position) of knots in the quadratic and cubic spline models.
+
+spline2 = lm(y ~ bs(x, degree = 2, df = 6))
+pred2 = predict(spline2, newdata = list(x = sort.x), se = TRUE)
+se.bands2 = cbind(pred2$fit + 2 * pred2$se.fit, pred2$fit - 2 * pred2$se.fit)
+
+spline3 = lm(y ~ bs(x, degree = 3, df = 7))
+pred3 = predict(spline3, newdata = list(x = sort.x), se = TRUE)
+se.bands3 = cbind(pred3$fit + 2 * pred3$se.fit, pred3$fit - 2 * pred3$se.fit)
+
+par(mfrow = c(1,3))
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Linear Spline", bty = 'l')
+lines(sort.x, pred1$fit, lwd = 2, col = "darkred")
+matlines(sort.x, se.bands1, lwd = 2, col = "darkred", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Quadratic Spline", bty = 'l')
+lines(sort.x, pred2$fit, lwd = 2, col = "darkgreen")
+matlines(sort.x, se.bands2, lwd = 2, col = "darkgreen", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Cubic Spline", bty = 'l')
+lines(sort.x, pred3$fit, lwd = 2, col = "darkblue")
+matlines(sort.x, se.bands3, lwd = 2, col = "darkblue", lty = 3)
+
+
+9.3 Natural Splines
+Splines, especially cubic splines, seem to be the best tool we have so far, right?
+
+Well, there is always room for improvement:
+
+Regression splines usually have high variance at the outer range of the predictor (the tails).
+Sometimes the confidence intervals at the tails are wiggly (especially for small sample sizes).
+Natural splines are extensions of regression splines which remedy these problems to some extent.
+
+9.3.1 Additional Constraints
+Natural splines impose two additional constraints at each boundary region:
+
+The spline function is constrained to be close to linear when  
+X
+<
+  smallest knot.
+The spline function is constrained to be close to linear when  
+X
+>
+  largest knot.
+These additional constraints of natural splines generally result in more stable estimates at the boundaries.
+
+9.3.2 Example: Wage Data
+We can see from Figure 9.6 that use of a natural spline has constrained the model at the lower and upper ends, and reduced the variance.
+
+Fitting cubic and natural splines to a subset of the Wage data.
+Figure 9.6: Fitting cubic and natural splines to a subset of the Wage data.
+
+9.3.3 How Many Knots and Where?
+Provided there is evidence from the data we can do it empirically:
+Place knots where it is clearly obvious that we have a distributional shift in direction.
+Place more knots on regions where we see more variability.
+Place fewer knots in places which look more stable.
+Alternatively, we can place knots in a uniform fashion (e.g. at the 25th, 50th and 75th percentiles, as we saw how to do in Section 9.2).
+9.4 Practical Demonstration
+For natural splines, we can use the command ns() in RStudio. As with the command bs() previously, we again have the option to either specify the knots manually (via the argument knots) or to simply pre-define the degrees of freedom (via the argument df). Below we use the latter option to fit four natural splines with 1, 2, 3 and 4 degrees of freedom. As we see using 1 degree of freedom actually results in just a linear model.
+
+spline.ns1 = lm(y ~ ns(x, df = 1))
+pred.ns1 = predict(spline.ns1, newdata = list(x = sort.x), se = TRUE)
+se.bands.ns1 = cbind(pred.ns1$fit + 2 * pred.ns1$se.fit, 
+                     pred.ns1$fit - 2 * pred.ns1$se.fit)
+
+spline.ns2 = lm(y ~ ns(x, df = 2))
+pred.ns2 = predict(spline.ns2, newdata = list(x = sort.x), se = TRUE)
+se.bands.ns2 = cbind(pred.ns2$fit + 2 * pred.ns2$se.fit, 
+                     pred.ns2$fit - 2 * pred.ns2$se.fit)
+
+spline.ns3 = lm(y ~ ns(x, df = 3))
+pred.ns3 = predict(spline.ns3, newdata = list(x = sort.x), se = TRUE)
+se.bands.ns3 = cbind(pred.ns3$fit + 2 * pred.ns3$se.fit, 
+                     pred.ns3$fit - 2 * pred.ns3$se.fit)
+
+spline.ns4 = lm(y ~ ns(x, df = 4))
+pred.ns4 = predict(spline.ns4, newdata = list(x = sort.x), se = TRUE)
+se.bands.ns4 = cbind(pred.ns4$fit + 2 * pred.ns4$se.fit, 
+                     pred.ns4$fit - 2 * pred.ns4$se.fit)
+
+par(mfrow = c(2, 2))
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Natural Spline (1 df)", bty = 'l')
+lines(sort.x, pred.ns1$fit, lwd = 2, col = "darkred")
+matlines(sort.x, se.bands.ns1, lwd = 2, col = "darkred", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Natural Spline (2 df)", bty = 'l')
+lines(sort.x, pred.ns2$fit, lwd = 2, col = "darkgreen")
+matlines(sort.x, se.bands.ns2, lwd = 2, col = "darkgreen", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Natural Spline (3 df)", bty = 'l')
+lines(sort.x, pred.ns3$fit, lwd = 2, col = "darkblue")
+matlines(sort.x, se.bands.ns3, lwd = 2, col = "darkblue", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Natural Spline (4 df)", bty = 'l')
+lines(sort.x, pred.ns4$fit, lwd = 2, col = "brown")
+matlines(sort.x, se.bands.ns4, lwd = 2, col = "brown", lty = 3)
+
+
+Below we plot the cubic spline next to the natural cubic spline for comparison. As we can see, the natural cubic spline is generally smoother and closer to linear on the right boundary of the predictor space, where it has, additionally, narrower confidence intervals in comparison to the cubic spline.
+
+par(mfrow = c(1,2))
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Cubic Spline", bty = 'l')
+lines(sort.x, pred3$fit, lwd = 2, col = "blue")
+matlines(sort.x, se.bands3, lwd = 2, col = "blue", lty = 3)
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Natural Spline (3 df)", bty = 'l')
+lines(sort.x, pred.ns3$fit, lwd = 2, col = "darkblue")
+matlines(sort.x, se.bands.ns3, lwd = 2, col = "darkblue", lty = 3)
+
+
+9.5 Smoothing Splines
+Smoothing splines are quite different from the non-linear modelling methods we have seen so far. Unlike regression splines and natural splines, there are no knots! Smoothing splines turns the discrete problem of selecting a number of knots into a continuous penalisation problem. The maths here is rather complicated, so we mainly introduce this topic by intuition rather than go into a load of technical details.
+
+9.5.1 Minimisation
+We seek a function  
+g
+  among all possible functions (linear or non-linear) which minimises
+n
+∑
+i
+=
+1
+ 
+(
+y
+i
+−
+g
+(
+x
+i
+)
+)
+2
++
+λ
+∫
+(
+g
+′′
+(
+t
+)
+)
+2
+d
+t
+,
+ 
+where  
+λ
+≥
+0
+  is a tuning parameter.
+
+The function  
+g
+  that minimises the above quantity is called a smoothing spline.
+
+9.5.2 Model Fit  
++
+  Penalty Term
+n
+∑
+i
+=
+1
+ 
+(
+y
+i
+−
+g
+(
+x
+i
+)
+)
+2
+
+ 
+Model fit
+ 
++
+λ
+∫
+(
+g
+′′
+(
+t
+)
+)
+2
+d
+t
+
+ 
+Penalty term
+ 
+ 
+
+When  
+λ
+=
+0
+  we are just left with the model fit term.
+When  
+λ
+→
+∞
+ … well more on that later.
+Lets examine the two terms separately.
+9.5.3 The Model Fit Term
+n
+∑
+i
+=
+1
+ 
+(
+y
+i
+−
+g
+(
+x
+i
+)
+)
+2
+ 
+This is a RSS but not our “usual” RSS:
+
+In all previous approaches, function  
+g
+  was linear in the parameters (coefficients of the predictors) and we minimised with respect to these parameters.
+Here, we have one predictor but the minimisation is with respect to  
+g
+ !
+So, if we let  
+g
+  be unconstrained and just minimise the above RSS, then we can end up with any weird-looking non linear function that passes through exactly every data point, leading to an RSS equal to 0 (overfitting!).
+Thus, the penalty on  
+g
+ …
+
+9.5.4 The Penalty Term
+λ
+∫
+(
+g
+′′
+(
+t
+)
+)
+2
+d
+t
+ 
+
+g
+′′
+(
+t
+)
+  is the 2nd derivative of  
+g
+  at a point  
+t
+  within the space of predictor  
+X
+ .
+The 2nd derivative of a function catches wiggles or non-linearities: if  
+g
+′′
+(
+t
+0
+)
+2
+  at a point  
+t
+0
+  is large, this means that  
+g
+  at this point  
+t
+0
+  suddenly jumps either up or down.
+The integration above over every  
+t
+  in the space of  
+X
+  is essentially a sum. The larger it is the more non-linear the function  
+g
+  is.
+9.5.5 Putting it all Together
+Minimizing
+n
+∑
+i
+=
+1
+ 
+(
+y
+i
+−
+g
+(
+x
+i
+)
+)
+2
++
+λ
+∫
+(
+g
+′′
+(
+t
+)
+)
+2
+d
+t
+,
+ 
+with respect to  
+g
+  turns out to be interesting.
+
+When  
+λ
+=
+0
+  we get an extremely wiggly non-linear function  
+g
+  (completely useless).
+As  
+λ
+  increases, the function  
+g
+  will become smoother.
+In the theoretical case of  
+λ
+→
+∞
+ ,  
+g
+′′
+  will be zero everywhere. When does that happen? When  
+g
+(
+x
+)
+=
+β
+0
++
+β
+1
+x
+ . So, in this case we return back to the linear model!
+That is why the penalty term is also called a roughness penalty within the framework of smoothing splines.
+
+9.5.6 Solution
+Surprisingly, the solution for any finite and non-zero  
+λ
+  is that the function  
+g
+  is a natural cubic spline but with knots placed on each individual sample point  
+x
+1
+,
+…
+,
+x
+n
+ .
+
+But doesn’t that lead to overfitting? No, because now we have once again the penalty parameter  
+λ
+  which can shrink coefficients to zero and thus avoid overfitting.
+
+9.5.7 Tuning  
+λ
+ 
+As usual  
+λ
+  can be tuned via cross-validation.
+Also,  
+λ
+  is associated with the effective degrees of freedom of a smoothing spline. These are similar to the degrees of freedom in standard spline models and can be used as an alternative to cross-validation as a way to fix  
+λ
+ .
+9.6 Practical Demonstration
+9.6.1 Boston Data
+For fitting smoothing splines we use the command smooth.splines() instead of lm(). Under smoothing splines there are no knots to specify; the only parameter is  
+λ
+ . This can be specified via cross-validation by specifying cv = TRUE inside smooth.splines(). Alternatively, we can specify the effective degrees of freedom which correspond to some value of  
+λ
+ . Below we first fit a smoothing spline with 3 effective degrees of freedom (via the argument df = 3), and then also by tuning  
+λ
+  via cross-validation. In this case we see that tuning  
+λ
+  through cross-validation results in a curve which is slightly wiggly on the right boundary of the predictor space.
+
+smooth1 = smooth.spline(x, y, df = 3)
+smooth2 = smooth.spline(x, y, cv = TRUE)
+
+par(mfrow = c(1,2))
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Smoothing Spline (3 df)", bty = 'l')
+lines(smooth1, lwd = 2, col = "brown")
+
+plot(x, y, cex.lab = 1.1, col="darkgrey", xlab = x.lab, ylab = y.lab, 
+     main = "Smoothing Spline (CV)", bty = 'l')
+lines(smooth2, lwd = 2, col = "darkorange")
+
+
+9.6.2 Wage Data
+Lets see how cubic splines, natural cubic splines and smoothing splines compare on the Wage data.
+
+We can also take sample size into consideration and see how the fitted curves look like for:
+
+A small sample of 50.
+A medium sample of 200.
+A large sample of 1000.
+For the cubic spline and natural cubic spline we have to define the number and position of the knots. For simplicity we will adopt the previous strategy of manyally specifying some knots: in particular, 3 knots placed at the ages of 30, 40 and 60.
+
+For the smoothing spline, everything is automatic -  
+λ
+  will be determined via CV by setting cv = TRUE.
+
+Note that the code below runs this comparison for a sample size of  
+n
+=
+200
+ . To plot results for  
+n
+=
+50
+  and  
+n
+=
+1000
+  (or any other value of  
+n
+ !), run the code yourself in R and change the line n <- 200 so that n is your chosen size.
+
+library("ISLR")
+library("splines") # Required for regression and natural splines.
+agelims=range(Wage$age)
+age.grid=seq(from=agelims[1],to=agelims[2])
+
+set.seed(1)
+
+# Number of data points - change this to investigate 
+# small, medium and large samples.
+n <- 200 
+
+# Take the a sample of n points from the data.
+ind = sample(1:3000, n)
+Wage1 = Wage[ind,]  # Label subset of data as Wage1.
+
+# Cubic Spline
+fitbs = lm(wage~bs(age, degree = 3, knots = c(30,40,60)), data = Wage1)
+predbs = predict(fitbs, newdata = list(age = age.grid), se = T)
+
+# Natural Spline
+fitns = lm(wage~ns(age, knots = c(30,40,60)), data = Wage1)
+predns = predict(fitns, newdata = list(age = age.grid), se = T)
+
+# Smoothing Spline
+fitss = smooth.spline(Wage1$age, Wage1$wage, cv = TRUE) 
+
+# Generate the Plots.
+par(mfrow=c(1,3))
+
+# Cubic Spline
+plot(Wage1$age, Wage1$wage, col = "darkgray", pch = 19, 
+     main = 'Cubic spline', bty = 'l', 
+     xlab = 'age', ylab = 'wage', cex.lab = 1.4, ylim = c(0,300))
+lines(age.grid, predbs$fit, lwd = 2, col = 'darkgreen')
+abline(v = c(30,40,60), lty = 'dashed')
+
+# Natural Spline
+plot(Wage1$age, Wage1$wage, col = "darkgray", pch = 19, 
+     main = 'Natural cubic spline', bty = 'l', 
+     xlab = 'age', ylab = 'wage', cex.lab = 1.4, ylim = c(0,300))
+lines(age.grid, predns$fit, lwd = 2, col = 'darkviolet')
+abline(v = c(30,40,60), lty = 'dashed')
+
+# Smoothing Spline
+plot(Wage1$age, Wage1$wage, col = "darkgray", pch = 19, 
+     main = 'Smoothing spline', bty = 'l', 
+     xlab = 'age', ylab = 'wage', cex.lab = 1.4, ylim = c(0,300))
+lines(fitss, lwd = 2, col = 'brown')
+
+
+If you run the above code for various sample sizes, you will see that, overall, the smoothing spline method is more robust: the shape of the curve remains more or less stable across different sample sizes. Importantly, this means that the fitted curve from the smoothing spline under  
+n
+=
+50
+  would fit well to the data with  
+n
+=
+1000
+ .
+That is not the case for the other two methods, especially for the cubic spline. These methods are more sensitive to the particular sample being used to train them.
+9.6.3 Drawback
+You will notice that we didn’t plot confidence intervals, because there is no built-in function in R package smooth.splines (that we used) that produces confidence intervals for smoothing splines. This is not a flaw of the package; this is a generic issue with smoothing splines as it is not as straightforward as it is with other spline methods to calculate confidence intervals.
+
+One can get confidence-like intervals by using:
+
+Bayesian credible intervals
+Bootstrap
+These methods require additional work and are beyond the scope of this course.
+
+References
+James, G., D. Witten, T. Hastie, and R. Tibshirani. 2013. An Introduction to Statistical Learning. Edited by G. Casella, Fienberg S, and I. Olkin. New York: Springer.
+Note: Some of the figures in these notes are taken from James et al. (2013) with permission from the authors: G. James, D. Witten, T. Hastie and R. Tibshirani.↩︎
+

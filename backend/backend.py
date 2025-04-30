@@ -18,7 +18,7 @@ from collect_data import DataCollector
 from pydantic import BaseModel
 import logging
 import shutil 
-
+import datetime
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -174,20 +174,21 @@ spaces_client = SpacesStorage()
 
 async def generate_animation(task_id: str, prompt: str, options: dict):
     """Background task for animation generation."""
-    # output_dir = MEDIA_DIR / task_id
     output_dir = Path("./temp") / task_id
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / "animation.mp4"
-
+    
     generation_start = time.time()
     llm_start = time.time()
     used_fallback = False
     sanitization_changes = []
-
+    process = None  # Define process outside the try block for cleanup in finally
+    
     try:
         generation_tasks[task_id].update({
             "status": TaskStatus.PROCESSING,
         })
+        
         # Generate code using LLM
         try:
             code = await generate_manim_code_with_llm(prompt)
@@ -198,21 +199,19 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
         finally:
             llm_time = time.time() - llm_start
 
+        # Upload code to storage
         code_url = await spaces_client.upload_code(code, task_id)
         if code_url is None:
             logger.warning(f"Failed to upload code for task {task_id}, continuing without code URL")
 
-
         generation_tasks[task_id].update({
             "code": code,
             "code_url": code_url,
-            "used_fallback": used_fallback  # Use the existing variable
-
+            "used_fallback": used_fallback
         })
 
-         # If this is a fallback, use a static placeholder video instead
+        # If using fallback template, use static placeholder video instead of rendering
         if used_fallback and os.path.exists("./static/placeholder.mp4"):
-            # Use a pre-generated placeholder
             static_video_url = f"https://{os.getenv('DOMAIN', 'theshaperotator.com')}/static/placeholder.mp4"
             
             generation_tasks[task_id].update({
@@ -220,14 +219,11 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
                 "video_url": static_video_url
             })
             
-            # Still log the attempt
+            # Log the attempt with placeholder video
             with open(SYSTEM_PROMPT_PATH, "r") as f:
                 system_prompt = f.read()
 
-            # Calculate total time
             render_time = time.time() - generation_start
-
-            # Log the attempt with all metadata
             generation_metadata = {
                 "llm_response_time": llm_time,
                 "used_fallback_template": used_fallback,
@@ -254,30 +250,51 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             
             return  # Exit early, no need for video generation
         
-        
+        # Normal video generation path
+        stdout_text = ""
+        stderr_text = ""
         with tempfile.TemporaryDirectory() as temp_dir:
             code_file = Path(temp_dir) / "scene.py"
             code_file.write_text(code)
             print(f"Created temp file at: {code_file}")
-            print(f"Code contents:\n{code}")
             
             quality_flag = "-ql" if options.get("quality") == "low" else "-qh"
+            
+            # Create subprocess
             process = await asyncio.create_subprocess_exec(
                 "manim",
                 str(code_file),
                 quality_flag,
-                # "--media_dir", str(MEDIA_DIR.absolute()),
-                # "--output_file", str(output_file.absolute())
                 "--media_dir", str(output_dir.absolute()),
                 "--output_file", str(output_file.absolute()),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
             
-            stdout, stderr = await process.communicate()
-            stdout_text = stdout.decode()
-            stderr_text = stderr.decode()
+            # Wait for process with timeout
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    process.communicate(), 
+                    timeout=300  # 5-minute timeout
+                )
+                stdout_text = stdout.decode()
+                stderr_text = stderr.decode()
+            except asyncio.TimeoutError:
+                # Kill the process if it times out
+                process.terminate()
+                await asyncio.sleep(0.5)
+                if process.returncode is None:
+                    process.kill()  # Force kill if terminate didn't work
+                raise Exception("Manim rendering timed out after 5 minutes")
             
+            # Double-check process is terminated
+            if process.returncode is None:
+                process.terminate()
+                await asyncio.sleep(0.5)
+                if process.returncode is None:
+                    process.kill()
+                    
+            # Check for render errors
             if process.returncode != 0:
                 raise Exception(f"Manim error: {stderr_text}")
             
@@ -289,19 +306,17 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             if not video_url:
                 raise Exception("Failed to upload video to storage")
 
+            # Update task status to completed
             generation_tasks[task_id].update({
                 "status": TaskStatus.COMPLETED,
                 "video_url": video_url  
             })
 
-            # Calculate total render time
+            # Log successful attempt
             render_time = time.time() - generation_start
-
-            # Read system prompt to log with the attempt
             with open(SYSTEM_PROMPT_PATH, "r") as f:
                 system_prompt = f.read()
 
-            # Log the attempt with all metadata
             generation_metadata = {
                 "llm_response_time": llm_time,
                 "used_fallback_template": used_fallback,
@@ -314,7 +329,7 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             }
             
             await data_collector.log_attempt(
-                id=task_id,  # Add this line
+                id=task_id,
                 prompt=prompt,
                 code=code,
                 task_data=generation_tasks[task_id],
@@ -324,53 +339,67 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
                 stderr=stderr_text,
                 render_time=render_time
             )
-
-            # Clean up temporary files
-            try:
-                shutil.rmtree(output_dir)
-            except Exception as cleanup_error:
-                print(f"Warning during cleanup: {cleanup_error}")
-                
+            
     except Exception as e:
+        # Handle all exceptions in the main process
         error_str = str(e)
         print(f"Error generating animation: {error_str}")
+        
+        # Update task status to failed
         generation_tasks[task_id].update({
             "status": TaskStatus.FAILED,
             "error": error_str
         })
 
-        # Log failed attempts too
-        with open(SYSTEM_PROMPT_PATH, "r") as f:
-            system_prompt = f.read()
+        # Log failed attempt
+        try:
+            with open(SYSTEM_PROMPT_PATH, "r") as f:
+                system_prompt = f.read()
 
-        generation_metadata = {
-            "llm_response_time": time.time() - llm_start,
-            "used_fallback_template": used_fallback,
-            "sanitization_changes": sanitization_changes,
-            "llm_config": {
-                "model": "mistral",
-                "quality": options.get("quality", "low"),
-                "resolution": options.get("resolution", "720p")
+            generation_metadata = {
+                "llm_response_time": time.time() - llm_start,
+                "used_fallback_template": used_fallback,
+                "sanitization_changes": sanitization_changes,
+                "llm_config": {
+                    "model": "mistral",
+                    "quality": options.get("quality", "low"),
+                    "resolution": options.get("resolution", "720p")
+                }
             }
-        }
 
-        await data_collector.log_attempt(
-            id=task_id,  # Add this line
-            prompt=prompt,
-            code=code if 'code' in locals() else "",
-            task_data=generation_tasks[task_id],
-            system_prompt=system_prompt,
-            generation_metadata=generation_metadata,
-            stdout=stdout_text if 'stdout_text' in locals() else None,
-            stderr=stderr_text if 'stderr_text' in locals() else None,
-            render_time=time.time() - generation_start
-        )
-
+            await data_collector.log_attempt(
+                id=task_id,
+                prompt=prompt,
+                code=code if 'code' in locals() else "",
+                task_data=generation_tasks[task_id],
+                system_prompt=system_prompt,
+                generation_metadata=generation_metadata,
+                stdout=stdout_text if 'stdout_text' in locals() else None,
+                stderr=stderr_text if 'stderr_text' in locals() else None,
+                render_time=time.time() - generation_start
+            )
+        except Exception as log_error:
+            print(f"Error logging failed attempt: {log_error}")
+            
+    finally:
+        # Make sure process is terminated if it still exists
+        if process is not None and process.returncode is None:
+            try:
+                process.terminate()
+                await asyncio.sleep(0.5)
+                if process.returncode is None:
+                    process.kill()
+            except Exception as process_error:
+                print(f"Error terminating manim process: {process_error}")
+        
+        # Always clean up temporary files
         try:
             if output_dir.exists():
                 shutil.rmtree(output_dir)
         except Exception as cleanup_error:
             print(f"Warning during cleanup: {cleanup_error}")
+
+
 async def cleanup_old_videos():
     """Remove videos older than 24 hours from storage bucket"""
     try:
