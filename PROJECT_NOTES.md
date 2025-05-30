@@ -87,3 +87,31 @@ output_dir/ (e.g., 'generate_dataset/3b1b_dataset/')
 │       ├── [code files from repo]  # Actual Python files
 │       └── run_manim.py  # Helper script to run the code (for directory matches)
 ├── [video_id_2]/
+
+
+how can we get data programatically so match up the videos with the code?
+can we just train on code and no videos? this is probably all we need to do until there is some vlm or video model in the loop
+get a critic video model
+
+inverse render khan academy videos by getting the transcript and trying to generate the video
+
+how tightly coupled are the transcripts and the code? 
+
+can we fuzz and reuse the transcript to generate augmented training examples? how can we augment the code if at all? 
+
+(how) do we need to chunk the transcript and code generation up 
+
+can we add some sort of loop where if the model is not generating code that compiles whatsoever, the error is passed back to the model and it tries to fix it? 
+
+if the code does compile and we get a video, can we then use the video to generate a new transcript and then use that transcript to generate a new code? this is a fun little way to use the ouroboros model drift to see biases in the model
+
+can we add a video model in the loop to evaluate
+
+if we want to do RL, what reward signals do we have to use
+does the amount of sft affect how sensitive we are going to be to the reward function? like we we do too much overfitting with the sft, how does this affect the rl learning dynamic
+
+what is the absolute simpelst thing we could do?
+just do better prompt engineering
+
+what is the command to run this thing locally again?
+
