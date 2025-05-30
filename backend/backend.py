@@ -2,8 +2,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from spaces_storage import SpacesStorage
-
+from collect_data import DataCollector
 from pydantic import BaseModel
 import tempfile
 import os
@@ -14,11 +13,10 @@ from typing import Optional
 from enum import Enum
 import httpx
 import time
-from collect_data import DataCollector
-from pydantic import BaseModel
 import logging
 import shutil 
 import datetime
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -170,7 +168,14 @@ MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 (MEDIA_DIR / "videos").mkdir(exist_ok=True)
 app.mount("/videos", StaticFiles(directory=str(MEDIA_DIR / "videos")), name="videos")
-spaces_client = SpacesStorage()
+print(os.getenv("USE_BUCKET", "true").lower())
+logger.info(f"Using bucket storage: {os.getenv('USE_BUCKET', 'false').lower() == 'true'}")
+USE_BUCKET = os.getenv("USE_BUCKET", "false").lower() == "true"
+if USE_BUCKET:
+    from spaces_storage import SpacesStorage
+    spaces_client = SpacesStorage()
+else:
+    spaces_client = None
 
 async def generate_animation(task_id: str, prompt: str, options: dict):
     """Background task for animation generation."""
@@ -200,9 +205,11 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             llm_time = time.time() - llm_start
 
         # Upload code to storage
-        code_url = await spaces_client.upload_code(code, task_id)
-        if code_url is None:
-            logger.warning(f"Failed to upload code for task {task_id}, continuing without code URL")
+        code_url = None
+        if spaces_client is not None:
+            code_url = await spaces_client.upload_code(code, task_id)
+            if code_url is None:
+                logger.warning(f"Failed to upload code for task {task_id}, continuing without code URL")
 
         generation_tasks[task_id].update({
             "code": code,
@@ -301,10 +308,16 @@ async def generate_animation(task_id: str, prompt: str, options: dict):
             if not output_file.exists():
                 raise Exception("Video file not generated")
             
-            # Upload to storage bucket
-            video_url = await spaces_client.upload_video(output_file, task_id)
-            if not video_url:
-                raise Exception("Failed to upload video to storage")
+            if USE_BUCKET:
+                video_url = await spaces_client.upload_video(output_file, task_id)
+                if not video_url:
+                    raise Exception("Failed to upload video to storage")
+            else:
+                # Save locally to media/videos/{task_id}.mp4
+                local_video_path = MEDIA_DIR / "videos" / f"{task_id}.mp4"
+                local_video_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(output_file), str(local_video_path))
+                video_url = f"/videos/{task_id}.mp4"
 
             # Update task status to completed
             generation_tasks[task_id].update({

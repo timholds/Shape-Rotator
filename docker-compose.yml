@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - .env.development
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8000
       - NODE_ENV=development
@@ -21,14 +23,18 @@ services:
     volumes:
       - ./backend/media:/app/media
       - ./backend/training_data:/app/training_data
+    env_file:
+      - .env.development
     environment:
-      - DOMAIN=theshaperotator.com
+      # - DOMAIN=theshaperotator.com
+      - DOMAIN=localhost:0009
       - ENVIRONMENT=development
       - SYSTEM_PROMPT_PATH=system_prompt.txt
       - OLLAMA_HOST=http://ollama:11434
-      - DO_BUCKET_ID=${DO_BUCKET_ID}
-      - DO_BUCKET_SECRET=${DO_BUCKET_SECRET}
-      - DO_BUCKET_NAME=${DO_BUCKET_NAME}
+      - USE_BUCKET=false
+      # - DO_BUCKET_ID=${DO_BUCKET_ID}
+      # - DO_BUCKET_SECRET=${DO_BUCKET_SECRET}
+      # - DO_BUCKET_NAME=${DO_BUCKET_NAME}
     networks:
       - app-network
     depends_on:
