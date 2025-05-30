@@ -1,4 +1,5 @@
-FROM python:3.10-slim
+# Multi-stage build for Python backend
+FROM python:3.10-slim AS base
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -15,13 +16,21 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-
-# Copy requirements first for better caching
+# Copy requirements and install Python dependencies
 COPY requirements_backend.txt .
 RUN pip install --no-cache-dir -r requirements_backend.txt 
 
 # Install Manim
 RUN pip install manim
+
+# Development stage
+FROM base AS development
+
+# Install additional development tools
+RUN apt-get update && apt-get install -y \
+    iputils-ping \
+    dnsutils \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy backend code
 COPY backend.py collect_data.py spaces_storage.py ./ 
@@ -32,11 +41,26 @@ RUN mkdir -p media training_data
 
 EXPOSE 8000
 
-RUN apt-get update && apt-get install -y curl
-RUN apt-get update && apt-get install -y iputils-ping dnsutils
+# Start development server with hot reload
+CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
-# Add a healthcheck that tests Ollama connectivity
-# HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
-#     CMD curl -f http://ollama:11434/api/version || exit 1
+# Production stage
+FROM base AS production
 
+# Create non-root user for security
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Copy backend code
+COPY backend.py collect_data.py spaces_storage.py ./ 
+COPY system_prompt.txt ./
+
+# Create necessary directories and set permissions
+RUN mkdir -p media training_data && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8000
+
+# Start production server
 CMD ["uvicorn", "backend:app", "--host", "0.0.0.0", "--port", "8000"]
