@@ -7,7 +7,7 @@ class PageRankRandomSurfer(Scene):
         # Configuration
         DAMPING = 0.8
         NUM_NODES = 5
-        NUM_ITERATIONS = 15
+        NUM_ITERATIONS = 8
         
         # Create graph structure
         graph_edges = [
@@ -43,9 +43,9 @@ class PageRankRandomSurfer(Scene):
             pagerank_labels[i] = DecimalNumber(
                 pagerank_values[i],
                 num_decimal_places=3,
-                font_size=16,
+                font_size=22,
                 color=YELLOW
-            ).next_to(nodes[i], DOWN, buff=0.1)
+            ).next_to(nodes[i], DOWN, buff=0.3)
         
         # Create edges
         edges = []
@@ -73,7 +73,7 @@ class PageRankRandomSurfer(Scene):
         
         # Add all elements to scene
         self.play(Write(title), Write(subtitle))
-        self.wait(0.5)
+        self.wait(0.1)
         
         # Animate graph creation
         self.play(*[Create(edge) for edge in edges])
@@ -81,7 +81,7 @@ class PageRankRandomSurfer(Scene):
         self.play(*[Write(node_labels[i]) for i in range(NUM_NODES)])
         self.play(*[Write(pagerank_labels[i]) for i in range(NUM_NODES)])
         self.play(Create(surfer))
-        self.wait()
+        self.wait(0.5)
         
         # Create iteration counter
         iteration_text = Text("Iteration: 0", font_size=20).to_corner(UL)
@@ -93,7 +93,7 @@ class PageRankRandomSurfer(Scene):
         for iteration in range(NUM_ITERATIONS):
             # Update iteration counter
             new_iteration_text = Text(f"Iteration: {iteration + 1}", font_size=20).to_corner(UL)
-            self.play(Transform(iteration_text, new_iteration_text), run_time=0.3)
+            self.play(Transform(iteration_text, new_iteration_text), run_time=0.2)
             
             # Determine next node
             if random.random() < DAMPING:
@@ -111,7 +111,7 @@ class PageRankRandomSurfer(Scene):
                     if edge_to_highlight:
                         self.play(
                             edge_to_highlight.animate.set_color(RED).set_stroke_width(4),
-                            run_time=0.3
+                            run_time=0.2
                         )
                 else:
                     # Dead end, random jump
@@ -127,14 +127,14 @@ class PageRankRandomSurfer(Scene):
                     stroke_width=2,
                     dash_length=0.2
                 )
-                self.play(Create(arc), run_time=0.3)
-                self.play(FadeOut(arc), run_time=0.2)
+                self.play(Create(arc), run_time=0.2)
+                self.play(FadeOut(arc), run_time=0.15)
             
             # Move surfer
             self.play(
                 surfer.animate.move_to(nodes[next_node].get_center()),
                 nodes[next_node].animate.set_fill(RED, opacity=0.8),
-                run_time=0.5
+                run_time=0.4
             )
             
             # Update visit count
@@ -151,23 +151,11 @@ class PageRankRandomSurfer(Scene):
                 nodes[next_node].animate.set_fill(BLUE, opacity=0.7),
                 *[edges[i].animate.set_color(GRAY).set_stroke_width(2) 
                   for i in range(len(edges))],
-                run_time=0.3
+                run_time=0.2
             )
             
             current_node = next_node
-            self.wait(0.2)
+            self.wait(0.1)
         
-        # Final emphasis on PageRank values
-        pr_box = SurroundingRectangle(
-            VGroup(*pagerank_labels.values()),
-            color=YELLOW,
-            buff=0.5
-        )
-        final_text = Text("Final PageRank Approximation", font_size=20, color=YELLOW)
-        final_text.next_to(pr_box, DOWN)
-        
-        self.play(Create(pr_box), Write(final_text))
-        self.wait(2)
-        
-        # Fade out
-        self.play(*[FadeOut(mob) for mob in self.mobjects])
+        # Final pause to show results
+        self.wait(3)
