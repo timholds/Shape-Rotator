@@ -18,34 +18,24 @@ class PageRankRandomSurfer(Scene):
             (4, 0), (4, 1)
         ]
         
-        # Node positions in a nice layout
+        # Node positions in a nice layout (shifted down to avoid overlap)
+        graph_offset = DOWN * 0.8
         positions = {
-            0: UP * 2,
-            1: RIGHT * 2.5 + UP * 0.5,
-            2: RIGHT * 1.5 + DOWN * 2,
-            3: LEFT * 1.5 + DOWN * 2,
-            4: LEFT * 2.5 + UP * 0.5
+            0: UP * 2 + graph_offset,
+            1: RIGHT * 2.5 + UP * 0.5 + graph_offset,
+            2: RIGHT * 1.5 + DOWN * 2 + graph_offset,
+            3: LEFT * 1.5 + DOWN * 2 + graph_offset,
+            4: LEFT * 2.5 + UP * 0.5 + graph_offset
         }
         
         # Create nodes
         nodes = {}
         node_labels = {}
-        pagerank_values = {}
-        pagerank_labels = {}
         
         for i in range(NUM_NODES):
             nodes[i] = Circle(radius=0.4, color=BLUE, fill_opacity=0.7)
             nodes[i].move_to(positions[i])
-            node_labels[i] = Text(str(i), font_size=24).move_to(positions[i])
-            
-            # Initialize PageRank values
-            pagerank_values[i] = 1.0 / NUM_NODES
-            pagerank_labels[i] = DecimalNumber(
-                pagerank_values[i],
-                num_decimal_places=3,
-                font_size=22,
-                color=YELLOW
-            ).next_to(nodes[i], DOWN, buff=0.3)
+            node_labels[i] = Text(str(i), font_size=24).next_to(nodes[i], UP, buff=0.2)
         
         # Create edges
         edges = []
@@ -71,25 +61,19 @@ class PageRankRandomSurfer(Scene):
         surfer.move_to(nodes[0].get_center())
         current_node = 0
         
-        # Add all elements to scene
-        self.play(Write(title), Write(subtitle))
-        self.wait(0.1)
-        
-        # Animate graph creation
-        self.play(*[Create(edge) for edge in edges])
-        self.play(*[Create(nodes[i]) for i in range(NUM_NODES)])
-        self.play(*[Write(node_labels[i]) for i in range(NUM_NODES)])
-        self.play(*[Write(pagerank_labels[i]) for i in range(NUM_NODES)])
-        self.play(Create(surfer))
-        self.wait(0.5)
+        # Add all elements to scene at once
+        self.add(title, subtitle)
+        self.add(*edges)
+        self.add(*[nodes[i] for i in range(NUM_NODES)])
+        self.add(*[node_labels[i] for i in range(NUM_NODES)])
+        self.add(surfer)
+        self.wait(2)
         
         # Create iteration counter
         iteration_text = Text("Iteration: 0", font_size=20).to_corner(UL)
         self.play(Write(iteration_text))
         
         # Simulate random surfer
-        visit_counts = {i: 0 for i in range(NUM_NODES)}
-        
         for iteration in range(NUM_ITERATIONS):
             # Update iteration counter
             new_iteration_text = Text(f"Iteration: {iteration + 1}", font_size=20).to_corner(UL)
@@ -137,14 +121,6 @@ class PageRankRandomSurfer(Scene):
                 run_time=0.4
             )
             
-            # Update visit count
-            visit_counts[next_node] += 1
-            
-            # Update PageRank approximation (based on visit frequency)
-            total_visits = sum(visit_counts.values())
-            for i in range(NUM_NODES):
-                new_pr = visit_counts[i] / total_visits if total_visits > 0 else 1/NUM_NODES
-                pagerank_labels[i].set_value(new_pr)
             
             # Reset colors
             self.play(
@@ -155,7 +131,7 @@ class PageRankRandomSurfer(Scene):
             )
             
             current_node = next_node
-            self.wait(0.1)
+            self.wait(0.15)
         
         # Final pause to show results
         self.wait(3)
